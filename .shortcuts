@@ -1,0 +1,56 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# ═══ MESIN WEB COCKPIT | satu perintah, semua hidup ═══
+cd ~/mesin || exit 1
+mkdir -p logs
+
+# 1) ☁️ Cloud env
+if [ -f .env ]; then set -a; . .env; set +a; echo "☁️  Cloud loaded"; fi
+
+# 2) 🧠 llama-server (skip kalau sudah jalan)
+if curl -s http://127.0.0.1:8080/models 2>/dev/null | grep -q '"id"'; then
+  echo "✅ llama-server sudah jalan"
+else
+  echo "⏳ Menyalakan llama-server..."
+  nohup ~/llama.cpp/build/bin/llama-server \
+    --models-dir ~/models --models-max 3 --no-models-autoload \
+    -ngl 0 -c 4096 --port 8080 --host 127.0.0.1 \
+    --threads 4 --jinja --reasoning off \
+    > logs/router.log 2>&1 &
+  for i in $(seq 1 30); do
+    curl -s http://127.0.0.1:8080/models 2>/dev/null | grep -q '"id"' && break
+    sleep 1
+  done
+  echo "✅ llama-server siap"
+fi
+
+# 3) 🌐 Web server (skip kalau sudah jalan)
+if curl -s http://127.0.0.1:5000/ >/dev/null 2>&1; then
+  echo "✅ Web sudah jalan"
+else
+  echo "⏳ Menyalakan web..."
+  nohup python3 web/server.py > logs/web.log 2>&1 &
+  sleep 2
+  echo "✅ Web siap"
+fi
+
+# 4) 👁️ Mata (skip kalau sudah jalan)
+if curl -s http://127.0.0.1:8082/health 2>/dev/null | grep -q '"ok"'; then
+  echo "✅ Mata sudah jalan"
+else
+  echo "⏳ Menyalakan mata..."
+  nohup ~/llama.cpp/build/bin/llama-server \
+    --model ~/models/Qwen3.5-0.8B-Q4_0.gguf \
+    --mmproj ~/models/mmproj-0.8B.gguf \
+    --host 127.0.0.1 --port 8082 \
+    -c 2048 -t 4 -ngl 0 --jinja --reasoning off \
+    > ~/vision.log 2>&1 &
+  echo "✅ Mata dinyalakan"
+fi
+
+# 5) 🔒 Cegah Android membunuh proses
+termux-wake-lock 2>/dev/null
+
+echo ""
+echo "🚀 Buka browser: http://localhost:5000"
+echo "   Termux boleh ditutup/diminimize."
+echo "   Matikan: bash ~/mesin/web_down.sh"

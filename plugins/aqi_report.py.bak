@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""AQI Report — penerjemah JSON jadi bahasa manusia.
+RIP plugins/aqi.sh (2026): otak brilian, nama salah. 🪦"""
+import json, sys, subprocess, os
+try:
+    from urllib.request import urlopen
+    from urllib.parse import urlencode
+except ImportError:
+    sys.exit("urllib tidak tersedia")
+
+# --- warisan aqi.sh ---
+def sub_aqi(c, bands):
+    for lo, hi, alo, ahi in bands:
+        if c <= hi:
+            return round(alo + (c - lo) * (ahi - alo) / (hi - lo))
+    return 301
+
+BANDS = {
+    "pm2_5": [(0,12,0,50),(12.1,35.4,51,100),(35.5,55.4,101,150),(55.5,150.4,151,200),(150.5,250.4,201,300)],
+    "pm10":  [(0,54,0,50),(55,154,51,100),(155,254,101,150),(255,354,151,200),(355,424,201,300)],
+    "o3":    [(0,108,0,50),(109,137,51,100),(138,168,101,150),(169,204,151,200),(205,404,201,300)],
+}
+FLAG = {"pm2_5": "🚬 partikel halus", "pm10": "🌋 debu kasar/abu", "o3": "☀️ smog fotokimia"}
+
+KEY_API = {"pm2_5": "pm2_5", "pm10": "pm10", "o3": "ozone"}
+
+def dominan(cur):
+    subs = {k: sub_aqi(cur[KEY_API[k]], b) for k, b in BANDS.items() if cur.get(KEY_API[k]) is not None}
+    if not subs: return None, 0, ""
+    top = max(subs, key=subs.get)
+    return top, subs[top], FLAG[top]
+
+# --- kategori US AQI ---
+def kategori(aqi):
+    if aqi <= 50:  return "🟢", "Baik", "Aman buat lari! Gaskeun 🏃‍♂️"
+    if aqi <= 100: return "🟡", "Sedang", "Lari santai masih OK"
+    if aqi <= 150: return "🟠", "Tidak Sehat (grup sensitif)", "Kurangi intensitas, pemanasan ekstra"
+    if aqi <= 200: return "🔴", "TIDAK SEHAT", "Tunda lari / wajib masker"
+    if aqi <= 300: return "🟣", "Sangat Tidak Sehat", "Di dalam ruangan aja bro"
+    return "⛔", "BERBAHAYA", "JANGAN keluar!"
+
+def saran_sepeda(aqi):
+    if aqi <= 50:  return "Aman sepedahan, gaspol 🚴"
+    if aqi <= 100: return "Sepedahan santai masih OK"
+    if aqi <= 150: return "Sepedahan pendek aja, jangan ngebut"
+    if aqi <= 200: return "Tunda sepedahan / masker wajib"
+    if aqi <= 300: return "Sepeda statis dalam ruangan aja"
+    return "Sepedanya parkir dulu!"
+
+# --- GPS dinamis: cache nav dulu, live belakangan, Jakarta terakhir ---
+def get_coord():
+    import re, time
+    # 1) Cache dari background tracker (fresh walau di bawah genteng)
+    src = os.path.expanduser("~/mesin/nav/gps_bg.out")
+    try:
+        txt = open(src).read()
+        m = re.search(r"\{.*\}", txt, re.S)
+        if m:
+            d = json.loads(m.group(0))
+            lat, lon = d.get("latitude"), d.get("longitude")
+            if lat is not None and lon is not None:
+                acc = d.get("accuracy")
+                age_min = (time.time() - os.path.getmtime(src)) / 60
+                if age_min > 720:
+                    raise ValueError(f"cache fosil ({age_min/1440:.0f} hari)")  # → coba live
+                def _umur(m):
+                    if m < 60:   return f"{m:.0f} mnt"
+                    if m < 1440: return f"{m/60:.1f} jam"
+                    return f"{m/1440:.0f} hari"
+                label = "GPS nav 📍"
+                if acc: label += f" ±{acc:.0f}m"
+                if age_min > 5: label += f" (cache {_umur(age_min)} lalu)"
+                return str(lat), str(lon), label
+    except Exception:
+        pass
+    # 2) Coba live (butuh langit kelihatan)
+    try:
+        out = subprocess.run(["bash", os.path.expanduser("~/mesin/tools/get_loc.sh")],
+                             capture_output=True, text=True, timeout=8)
+        m = re.search(r"\{.*\}", out.stdout, re.S)
+        if m:
+            d = json.loads(m.group(0))
+            if d.get("latitude") is not None:
+                return str(d["latitude"]), str(d["longitude"]), "GPS live 📍"
+    except Exception:
+        pass
+    # 3) Menyerah pada genteng
+    return "-6.24", "106.99", "fallback Jakarta"
+
+lat, lon, sumber = get_coord()
+url = f"https://air-quality-api.open-meteo.com/v1/air-quality?{urlencode({'latitude': lat, 'longitude': lon, 'current': 'pm2_5,pm10,ozone,us_aqi'})}"
+
+try:
+    data = json.loads(urlopen(url, timeout=10).read())["current"]
+except Exception as e:
+    print(f"❌ Gagal ambil data AQI: {e}")
+    sys.exit(1)
+
+aqi = data.get("us_aqi", 0) or 0
+emoji, kat, saran = kategori(aqi)
+pol, pol_aqi, pol_flag = dominan(data)
+
+if "--json" in sys.argv:
+    subs = {k: sub_aqi(data[KEY_API[k]], b) for k, b in BANDS.items() if data.get(KEY_API[k]) is not None}
+    print(json.dumps({
+        "aqi": aqi, "emoji": emoji, "kategori": kat, "saran": saran,
+        "saran_sepeda": saran_sepeda(aqi),
+        "pol": pol, "pol_aqi": pol_aqi, "pol_flag": pol_flag,
+        "pm2_5": data.get("pm2_5"), "pm10": data.get("pm10"), "o3": data.get("ozone"),
+        "subs": subs,
+        "lat": lat, "lon": lon, "sumber": sumber, "time": data.get("time", "?"),
+    }, ensure_ascii=False))
+else:
+    print(f"{emoji} AQI {aqi} — {kat}")
+    print(f"   📍 {sumber} ({lat}, {lon}) | ⏰ {data.get('time','?')}")
+    print(f"   PM2.5: {data.get('pm2_5','?')} µg/m³ | PM10: {data.get('pm10','?')} µg/m³ | O3: {data.get('ozone','?')}")
+    if pol:
+        print(f"   🎯 Biang kerok: {pol_flag} (sub-AQI {pol_aqi})")
+    print(f"   💡 {saran}")

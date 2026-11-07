@@ -1,0 +1,52 @@
+# Secrets & Environment (JANGAN SAMPAI BOCOR)
+.env
+*.env
+.env.*
+*.key
+*.pem
+
+# Python
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node.js & React Native
+node_modules/
+mobile/node_modules/
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/build/
+.gradle/
+
+# Databases & Cache Runtime
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+data/*.db
+data/chat_history.db
+data/memory.db
+data/pribadi.db
+data/uploads/
+data/audio/*.wav
+data/video/
+logs/
+nav/gps_bg.*
+nav/.trip_*
+
+# Media Sampah & Output Render
+*.mp4
+*.ppm
+karya_*.png
+
+# Musik & Audio Files
+*.mp3
+*.flac
+*.wav
+*.m4a
+data/musik/
+mesin/
+.github/workflows/

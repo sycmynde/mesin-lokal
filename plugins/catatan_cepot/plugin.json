@@ -1,0 +1,6 @@
+{
+  "name": "catatan_cepot",
+  "description": "Plugin contoh: catatan cepat lokal",
+  "enabled": true,
+  "module": "catatan_cepot.py"
+}

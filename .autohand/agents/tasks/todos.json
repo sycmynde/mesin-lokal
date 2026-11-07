@@ -1,0 +1,23 @@
+[
+  {
+    "content": "Audit semua endpoint & fungsi di web (server.py + index.html)",
+    "status": "in_progress",
+    "activeForm": "Mengaudit semua kabel di web",
+    "id": "task-1793552128397-0",
+    "title": "Audit semua endpoint & fungsi di web (server.py + index.html)"
+  },
+  {
+    "content": "Klasifikasi: nyambung / dummy / putus",
+    "status": "pending",
+    "activeForm": "Mengklasifikasi status kabel",
+    "id": "task-1793552128397-1",
+    "title": "Klasifikasi: nyambung / dummy / putus"
+  },
+  {
+    "content": "Laporkan hasil audit",
+    "status": "pending",
+    "activeForm": "Melaporkan hasil",
+    "id": "task-1793552128397-2",
+    "title": "Laporkan hasil audit"
+  }
+]

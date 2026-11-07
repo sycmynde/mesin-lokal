@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud AI - Asisten Lokal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://tailwindcss.com"></script>
+    <!-- Lucide Icons untuk Ikon Modern -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        /* Efek custom scrollbar agar minimalis */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-gray-100 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR: Riwayat Chat (Disembunyikan di HP, muncul di layar besar) -->
+    <aside class="w-64 bg-[#111827] border-r border-gray-800 flex flex-col justify-between hidden md:flex">
+        <div class="p-4 flex flex-col h-full">
+            <!-- Tombol Chat Baru -->
+            <button onclick="createNewChat()" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium rounded-xl transition duration-200 shadow-lg shadow-indigo-500/20 mb-6">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <span>Chat Baru</span>
+            </button>
+
+            <!-- Daftar Riwayat -->
+            <div class="flex-1 overflow-y-auto space-y-2">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-2">Riwayat Terbaru</p>
+                <div class="flex items-center gap-3 px-3 py-2.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-sm text-gray-300 cursor-pointer hover:bg-gray-800 transition">
+                    <i data-lucide="message-square" class="w-4 h-4 text-blue-400"></i>
+                    <span class="truncate">Membuat Web GUI AI...</span>
+                </div>
+                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-400 cursor-pointer hover:bg-gray-800/40 hover:text-gray-300 transition">
+                    <i data-lucide="message-square" class="w-4 h-4 text-gray-500"></i>
+                    <span class="truncate">Optimasi Termux Android</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian Info Status Server di Bawah Sidebar -->
+        <div class="p-4 border-t border-gray-800 bg-[#0d131f]">
+            <div class="flex items-center justify-between text-xs text-gray-400">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Server Lokal Terhubung</span>
+                </div>
+                <span class="text-[10px] bg-gray-800 px-1.5 py-0.5 rounded text-gray-300">Port 8080</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- AREA UTAMA -->
+    <main class="flex-1 flex flex-col h-full relative">
+        
+        <!-- HEADER -->
+        <header class="h-16 border-b border-gray-800/80 bg-[#0b0f19]/80 backdrop-blur-md flex items-center justify-between px-6 z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/10">
+                    <i data-lucide="cpu" class="w-4 h-4 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-semibold tracking-wide">CloudAI <span class="text-xs text-blue-400 font-mono bg-blue-950/50 px-1.5 py-0.5 rounded border border-blue-900/30 ml-1">Lokal</span></h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="p-2 text-gray-400 hover:text-gray-200 rounded-lg hover:bg-gray-800/50 transition">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- KOTAK CHAT (Tampilan Pesan) -->
+        <div id="chatbox" class="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-3xl w-full mx-auto">
+            <!-- Tampilan Awal saat Chat Masih Kosong -->
+            <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center px-4 py-12">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700/50 flex items-center justify-center shadow-xl mb-4">
+                    <i data-lucide="sparkles" class="w-8 h-8 text-indigo-400"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-2">Bagaimana saya bisa membantu hari ini?</h2>
+                <p class="text-sm text-gray-400 max-w-md mb-8">Asisten AI ini berjalan 100% secara lokal di perangkat Android Anda menggunakan kapasitas termux & Llama.</p>
+                
+                <!-- Contoh Prompt Cepat -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl">
+                    <button onclick="fillPrompt('Bantu saya membuat script python sederhana')" class="p-4 bg-gray-900/40 hover:bg-gray-800/40 border border-gray-800 hover:border-gray-700 text-left rounded-xl transition text-sm">
+                        <p class="font-medium text-gray-200 mb-1">Tulis Script</p>
+                        <p class="text-xs text-gray-400">"Bantu saya membuat script python sederhana..."</p>
+                    </button>
+                    <button onclick="fillPrompt('Jelaskan cara kerja memori RAM pada HP')" class="p-4 bg-gray-900/40 hover:bg-gray-800/40 border border-gray-800 hover:border-gray-700 text-left rounded-xl transition text-sm">
+                        <p class="font-medium text-gray-200 mb-1">Eksplorasi Konsep</p>
+                        <p class="text-xs text-gray-400">"Jelaskan cara kerja memori RAM pada HP..."</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- INPUT AREA (Sticky di bagian bawah) -->
+        <div class="p-4 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19] to-transparent">
+            <div class="max-w-3xl w-full mx-auto relative">
+                <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-2 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/30 transition backdrop-blur-lg flex items-end gap-2 shadow-2xl">
+                    <textarea id="userInput" rows="1" placeholder="Tanyakan apa saja ke AI..." class="w-full bg-transparent border-0 focus:ring-0 text-sm text-gray-100 placeholder-gray-500 p-2 resize-none max-h-32 outline-none" oninput="autoResize(this)"></textarea>
+                    <button onclick="sendMessage()" class="p-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition flex items-center justify-center disabled:opacity-50 disabled:hover:bg-indigo-600" id="sendBtn">
+                        <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <p class="text-[11px] text-center text-gray-600 mt-2">AI lokal dapat membuat kesalahan. Harap verifikasi informasi penting.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- LOGIKA JAVASCRIPT -->
+    <script>
+        // Inisialisasi Ikon Lucide setelah DOM siap
+        lucide.createIcons();
+
+        // Membuat textarea otomatis membesar saat baris bertambah
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // Mengisi prompt otomatis dari rekomendasi card
+        function fillPrompt(text) {
+            const input = document.getElementById('userInput');
+            input.value = text;
+            input.focus();
+            autoResize(input);
+        }
+
+        function createNewChat() {
+            document.getElementById('chatbox').innerHTML = `
+                <div id="welcomeScreen" class="h-full flex flex-col items-center justify-center text-center px-4 py-12">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700/50 flex items-center justify-center shadow-xl mb-4">
+                        <i data-lucide="sparkles" class="w-8 h-8 text-indigo-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Bagaimana saya bisa membantu hari ini?</h2>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatbox = document.getElementById('chatbox');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const sendBtn = document.getElementById('sendBtn');
+            const messageText = input.value.trim();
+
+            if (!messageText) return;
+
+            // Hapus welcome screen jika pesan pertama dikirim
+            if (welcomeScreen) {
+                welcomeScreen.remove();
+            }
+
+            // Nonaktifkan input & tombol saat AI berpikir
+            input.disabled = true;
+            sendBtn.disabled = true;
+
+            // Tambahkan Bubble Chat User (Kanan/Abu-abu gelap)
+            chatbox.innerHTML += `
+                <div class="flex justify-end gap-3 fade-in">
+                    <div class="max-w-[85%] bg-gray-800/80 border border-gray-700/40 text-gray-100 rounded-2xl px-4 py-3 text-sm shadow-md">
+                        ${messageText.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+
+            // Reset Input Box
+            input.value = '';
+            input.style.height = 'auto';

@@ -1,0 +1,6 @@
+{
+  "cpuThreads": 4,
+  "ramAlloc": 2,
+  "batchSize": 4,
+  "ctxSize": 4096
+}

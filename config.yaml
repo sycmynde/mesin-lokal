@@ -1,0 +1,12 @@
+llm_local:
+  api_url: "http://127.0.0.1:8080/v1/chat/completions"
+  model_name: "Qwen3.8-2B-Uncensored-Q4_K_M"
+  max_tokens: 2048
+  temperature: 0.5
+  top_p: 0.9
+
+online_brain:
+  enabled: true
+  max_tokens: 2048
+  temperature: 0.3
+  top_p: 0.9

@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@openrouter/agent": "^0.11.0",
+    "@openrouter/sdk": "^1.5.7"
+  },
+  "allowScripts": {
+    "@openrouter/sdk@1.5.7": true,
+    "@openrouter/agent@0.11.0": true
+  }
+}

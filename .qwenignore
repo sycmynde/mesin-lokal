@@ -1,0 +1,47 @@
+# Binary & Model Weights (JANGAN PERNAH KIRIM KE API)
+*.bin
+*.gguf
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.tar.gz
+*.zip
+*.so
+*.o
+*.a
+
+# Build artifacts & cache
+build/
+.gradle/
+.cargo/
+node_modules/
+__pycache__/
+*.class
+*.dex
+*.apk
+
+# Folder AI engines (terlalu besar, bukan kode yang perlu diedit)
+llama.cpp/
+sherpa-onnx/
+whisper.cpp/
+piper-tts/
+piper-env/
+ltx.cpp/
+stable-diffusion.cpp/
+models/
+output*/
+tmp/
+
+# Backup & arsip
+*.bak
+*.log
+*.tar.gz
+SOURCE_CODE_BERSIH.tar.gz
+mesin_v11_final_waras.tar.gz
+
+# Credentials & secrets
+.git-credentials
+.env
+*.key
+*.pem

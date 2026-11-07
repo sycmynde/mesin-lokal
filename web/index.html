@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mesin AI</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  /* Default Mesin theme */
+  --bg: #0b141a; --bg-header: #1f2c34; --bg-sidebar: #111b21;
+  --bg-input: #2a3942; --bg-bubble-user: #005c4b; --bg-bubble-ai: #202c33;
+  --border: #2a3942; --text: #e9edef; --text2: #8696a0;
+  --accent: #00a884; --accent-hover: #06cf9c; --danger: #ef4444;
+  --warning: #f59e0b; --success: #00a884;
+}
+
+/* ===== THEME VARIANTS (popular-web-designs) ===== */
+html.theme-linear {
+  --bg: #0f0f12; --bg-header: #1a1a1e; --bg-sidebar: #18181b;
+  --bg-input: #27272a; --bg-bubble-user: #2d2d32; --bg-bubble-ai: #18181b;
+  --border: #27272a; --text: #fafafa; --text2: #a1a1aa;
+  --accent: #6366f1; --accent-hover: #818cf8; --danger: #ef4444;
+  --warning: #f59e0b; --success: #22c55e;
+}
+html.theme-vercel {
+  --bg: #ffffff; --bg-header: #fafafa; --bg-sidebar: #f5f5f5;
+  --bg-input: #f0f0f0; --bg-bubble-user: #000000; --bg-bubble-ai: #f5f5f5;
+  --border: #e5e5e5; --text: #000000; --text2: #666666;
+  --accent: #000000; --accent-hover: #333333; --danger: #ff0000;
+  --warning: #ff9900; --success: #00cc00;
+  color-scheme: light;
+}
+html.theme-stripe {
+  --bg: #0f0e11; --bg-header: #1a191d; --bg-sidebar: #151418;
+  --bg-input: #232227; --bg-bubble-user: #7000fc; --bg-bubble-ai: #1e1d22;
+  --border: #232227; --text: #ffffff; --text2: #a1a1aa;
+  --accent: #7000fc; --accent-hover: #8b1dfc; --danger: #ef4444;
+  --warning: #f59e0b; --success: #00a884;
+}
+html.theme-supabase {
+  --bg: #09090b; --bg-header: #131316; --bg-sidebar: #0e0e10;
+  --bg-input: #1a1a1e; --bg-bubble-user: #028477; --bg-bubble-ai: #131316;
+  --border: #27272a; --text: #fafafa; --text2: #a1a1aa;
+  --accent: #038c70; --accent-hover: #06b6a4; --danger: #ef4444;
+  --warning: #f59e0b; --success: #038c70;
+}
+html.theme-cursor {
+  --bg: #0b0c0f; --bg-header: #14161a; --bg-sidebar: #101115;
+  --bg-input: #1e2126; --bg-bubble-user: #6e48aa; --bg-bubble-ai: #1a1d22;
+  --border: #1e2126; --text: #ffffff; --text2: #94a3b8;
+  --accent: #6e48aa; --accent-hover: #8b6cf6; --danger: #ef4444;
+  --warning: #f59e0b; --success: #22c55e;
+}
+html.theme-xai {
+  --bg: #ffffff; --bg-header: #f8f8f8; --bg-sidebar: #f0f0f0;
+  --bg-input: #e5e5e5; --bg-bubble-user: #000000; --bg-bubble-ai: #f0f0f0;
+  --border: #d4d4d4; --text: #000000; --text2: #666666;
+  --accent: #000000; --accent-hover: #333333; --danger: #ff0000;
+  --warning: #ff9900; --success: #00aa00;
+  color-scheme: light;
+}
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; touch-action: manipulation; }
+body { display: flex; }
+
+/* SIDEBAR */
+.sidebar { width: 56px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 4px; flex-shrink: 0; overflow-y: auto; }
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-logo { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; flex-shrink: 0; }
+.sidebar-logo svg { width: 20px; height: 20px; fill: white; }
+.nav-btn { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; border: none; background: transparent; color: var(--text2); position: relative; flex-shrink: 0; }
+.nav-btn:hover { background: var(--border); color: var(--text); }
+.nav-btn.active { background: var(--accent); color: white; }
+.nav-btn svg { width: 18px; height: 18px; }
+.nav-btn .tooltip { position: absolute; left: 48px; background: var(--bg-header); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.nav-btn:hover .tooltip { opacity: 1; }
+.sidebar-spacer { flex: 1; }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* HEADER */
+.header { height: 52px; background: var(--bg-header); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 12px; gap: 10px; flex-shrink: 0; z-index: 10; }
+.header-model { display: flex; align-items: center; gap: 8px; padding: 5px 10px; background: var(--bg); border-radius: 8px; cursor: pointer; flex: 1; min-width: 0; }
+.header-model-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; background: #00cec920; }
+.header-model-info { min-width: 0; flex: 1; }
+.header-model-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-model-meta { font-size: 10px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; box-shadow: 0 0 8px var(--success); }
+.chat-counter { font-size: 11px; color: var(--text2); background: var(--bg); padding: 4px 10px; border-radius: 12px; white-space: nowrap; flex-shrink: 0; border: 1px solid var(--border); }
+.header-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.header-btn { width: 34px; height: 34px; border-radius: 8px; border: none; background: transparent; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
+.header-btn:hover { background: var(--border); color: var(--text); }
+.header-btn svg { width: 18px; height: 18px; }
+
+/* DROPDOWN */
+.dropdown { position: absolute; top: 42px; right: 0; background: var(--bg-header); border: 1px solid var(--border); border-radius: 10px; padding: 5px; min-width: 200px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 200; display: none; flex-direction: column; gap: 2px; }
+.dropdown.show { display: flex; }
+.dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text); transition: background 0.15s; }
+.dropdown-item:hover { background: var(--border); }
+.dropdown-item svg { width: 16px; height: 16px; color: var(--text2); flex-shrink: 0; }
+.dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* CONTENT */
+.content { flex: 1; overflow: hidden; position: relative; }
+.panel { position: absolute; inset: 0; display: none; flex-direction: column; overflow: hidden; }
+.panel.active { display: flex; }
+
+/* CHAT */
+.chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 14px 10px; display: flex; flex-direction: column; gap: 3px; }
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.msg { max-width: 85%; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.45; word-wrap: break-word; animation: msgIn 0.2s ease; position: relative; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.msg.user { align-self: flex-end; background: var(--bg-bubble-user); color: var(--text); border-top-right-radius: 2px; }
+.msg.ai { align-self: flex-start; background: var(--bg-bubble-ai); color: var(--text); border-top-left-radius: 2px; }
+.msg.system { align-self: center; background: rgba(32, 44, 51, 0.5); color: var(--text2); font-size: 11px; padding: 5px 12px; border-radius: 12px; max-width: 90%; text-align: center; margin: 6px 0; }
+.msg .time { font-size: 10px; color: rgba(255,255,255,0.45); float: right; margin-left: 10px; margin-top: 4px; user-select: none; -webkit-user-select: none; }
+.msg .copy-btn { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 11px; color: var(--text2); background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; user-select: none; -webkit-user-select: none; }
+.msg .copy-btn:active { opacity: 0.7; }
+.msg img { max-width: 100%; border-radius: 8px; margin-top: 4px; display: block; }
+.typing-indicator { display: flex; gap: 4px; padding: 10px 14px; background: var(--bg-bubble-ai); border-radius: 10px; border-top-left-radius: 2px; align-self: flex-start; width: fit-content; }
+.typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text2); animation: typing 1.4s infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }
+
+/* CHAT INPUT */
+.chat-input-area { padding: 8px; background: var(--bg-header); display: flex; align-items: flex-end; gap: 6px; flex-shrink: 0; min-height: 52px; }
+.chat-input-wrap { flex: 1; display: flex; align-items: flex-end; background: var(--bg-input); border-radius: 22px; padding: 4px 4px 4px 10px; gap: 2px; min-width: 0; }
+.chat-input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 14px; outline: none; resize: none; max-height: 100px; line-height: 1.4; font-family: inherit; padding: 6px 0; min-width: 0; }
+.chat-input::placeholder { color: var(--text2); }
+.input-btn { width: 36px; height: 36px; min-width: 36px; border-radius: 50%; border: none; background: transparent; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+.input-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.input-btn.send { background: var(--accent); color: white; }
+.input-btn.send:hover { background: var(--accent-hover); }
+.input-btn svg { width: 18px; height: 18px; }
+.web-icon-btn { width: 36px; height: 36px; min-width: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; position: relative; }
+.web-icon-btn:hover { color: var(--text); border-color: var(--text2); }
+.web-icon-btn.active { background: rgba(0, 168, 132, 0.15); border-color: var(--accent); color: var(--accent); }
+.web-icon-btn svg { width: 16px; height: 16px; }
+.web-icon-btn .web-dot { position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: none; }
+.web-icon-btn.active .web-dot { display: block; }
+
+/* MODELS PANEL */
+.models-panel { flex: 1; overflow-y: auto; padding: 16px; }
+.models-panel::-webkit-scrollbar { width: 4px; }
+.models-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.models-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.models-header h2 { font-size: 16px; font-weight: 600; }
+.models-stats { font-size: 11px; color: var(--text2); display: flex; gap: 12px; }
+.models-filter { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+.models-filter::-webkit-scrollbar { height: 0; }
+.filter-chip { padding: 6px 12px; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.15s; color: var(--text2); white-space: nowrap; flex-shrink: 0; }
+.filter-chip:hover { border-color: var(--accent); color: var(--text); }
+.filter-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+.info-box { background: var(--bg-bubble-ai); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: var(--text2); line-height: 1.5; }
+.info-box strong { color: var(--text); }
+.info-box code { background: var(--bg); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+.model-category { margin-bottom: 20px; }
+.category-title { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.category-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.model-card { background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 8px; transition: all 0.15s; }
+.model-card:hover { border-color: var(--accent); }
+.model-card.active { border-color: var(--accent); background: linear-gradient(135deg, var(--bg-bubble-ai), rgba(0, 168, 132, 0.05)); }
+.model-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.model-card-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.model-card-info { flex: 1; min-width: 0; }
+.model-card-name { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.active-badge { font-size: 9px; padding: 2px 6px; background: var(--accent); color: white; border-radius: 4px; font-weight: 700; }
+.model-card-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.model-card-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+.meta-item { display: flex; align-items: center; gap: 4px; }
+.model-card-path { font-family: 'SF Mono', Monaco, monospace; font-size: 10px; color: var(--text2); background: var(--bg); padding: 5px 8px; border-radius: 6px; overflow-x: auto; white-space: nowrap; margin-bottom: 8px; border: 1px solid var(--border); }
+.model-card-path::before { content: '$ '; color: var(--accent); }
+.model-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.model-action-btn { padding: 5px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 11px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
+.model-action-btn:hover { border-color: var(--accent); }
+.model-action-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.model-action-btn.active-action { background: var(--accent); border-color: var(--accent); color: white; }
+
+/* GEN PANELS */
+.gen-panel { flex: 1; overflow-y: auto; padding: 16px; }
+.gen-panel::-webkit-scrollbar { width: 4px; }
+.gen-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.gen-section { margin-bottom: 18px; }
+.gen-section h3 { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+.gen-input { width: 100%; background: var(--bg-bubble-ai); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 13px; outline: none; font-family: inherit; resize: vertical; min-height: 70px; transition: border-color 0.15s; }
+.gen-input:focus { border-color: var(--accent); }
+.gen-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; margin-bottom: 8px; }
+.gen-option { padding: 8px 10px; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.15s; text-align: center; color: var(--text2); }
+.gen-option:hover { border-color: var(--accent); color: var(--text); }
+.gen-option.selected { background: var(--accent); border-color: var(--accent); color: white; }
+.number-input-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 10px; padding: 7px 10px; margin-top: 8px; }
+.number-input-wrap label { font-size: 11px; color: var(--text2); white-space: nowrap; }
+.number-input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 13px; outline: none; font-family: inherit; width: 80px; }
+.number-input:focus { border-color: var(--accent); }
+.number-hint { font-size: 10px; color: var(--text2); margin-top: 5px; }
+.gen-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 10px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.gen-btn:hover { background: var(--accent-hover); }
+.gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.gen-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 14px; }
+.gen-result-item { aspect-ratio: 1; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; padding: 10px; }
+.gen-result-item .placeholder { color: var(--text2); font-size: 11px; text-align: center; }
+.gen-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--border); }
+.gen-progress-bar { height: 100%; background: var(--accent); border-radius: 3px; animation: progressAnim 2s ease-in-out infinite; }
+@keyframes progressAnim { 0% { width: 0%; } 50% { width: 70%; } 100% { width: 100%; } }
+
+/* VOICE PANEL */
+.voice-panel { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px; overflow-y: auto; }
+.voice-visualizer { width: 140px; height: 140px; border-radius: 50%; background: var(--bg-bubble-ai); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: all 0.3s; flex-shrink: 0; }
+.voice-visualizer.recording { border-color: var(--danger); box-shadow: 0 0 30px rgba(239, 68, 68, 0.2); }
+.voice-visualizer.recording::before { content: ''; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--danger); animation: voicePulse 1.5s infinite; }
+@keyframes voicePulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+.voice-waves { display: flex; align-items: center; gap: 3px; height: 30px; }
+.voice-wave { width: 3px; background: var(--accent); border-radius: 3px; transition: height 0.1s; }
+.voice-status { font-size: 13px; color: var(--text2); text-align: center; }
+.voice-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.voice-btn { padding: 8px 16px; border-radius: 16px; border: 1px solid var(--border); background: var(--bg-bubble-ai); color: var(--text); font-size: 12px; cursor: pointer; transition: all 0.15s; }
+.voice-btn:hover { border-color: var(--accent); }
+.voice-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+.voice-transcript { width: 100%; max-width: 400px; padding: 12px; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 10px; font-size: 13px; line-height: 1.5; color: var(--text); min-height: 50px; }
+
+/* CAMERA PANEL */
+.camera-panel { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 14px; }
+.camera-preview { width: 100%; max-width: 400px; aspect-ratio: 4/3; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+.camera-preview video { width: 100%; height: 100%; object-fit: cover; }
+.camera-placeholder { color: var(--text2); font-size: 13px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.camera-controls { display: flex; gap: 16px; }
+.camera-btn { width: 50px; height: 50px; border-radius: 50%; border: 3px solid var(--text); background: transparent; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.camera-btn:hover { background: rgba(255,255,255,0.1); }
+.camera-btn:active { transform: scale(0.95); }
+.camera-btn svg { width: 22px; height: 22px; fill: var(--text); }
+
+/* FILES PANEL */
+.file-browser { flex: 1; overflow-y: auto; padding: 16px; }
+.file-path { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-bubble-ai); border-radius: 8px; margin-bottom: 14px; font-size: 12px; color: var(--text2); overflow-x: auto; }
+.file-path span { cursor: pointer; white-space: nowrap; }
+.file-path span:hover { color: var(--accent); }
+.file-path .sep { color: var(--border); cursor: default; }
+.file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+.file-item { background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.file-item:hover { border-color: var(--accent); }
+.file-name { font-size: 10px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 6px; }
+
+/* SEARCH PANEL */
+.search-panel { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; overflow: hidden; }
+.search-bar { display: flex; gap: 8px; }
+.search-input { flex: 1; background: var(--bg-bubble-ai); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 20px; font-size: 13px; outline: none; transition: border-color 0.15s; }
+.search-input:focus { border-color: var(--accent); }
+.search-btn { padding: 10px 18px; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+.search-btn:hover { background: var(--accent-hover); }
+.search-results { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.search-result { padding: 12px; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; }
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--text-link); }
+.search-result-url { font-size: 10px; color: var(--accent); margin-bottom: 6px; }
+.search-result-snippet { font-size: 12px; color: var(--text2); line-height: 1.4; }
+
+/* CLOUD PANEL */
+.cloud-panel { flex: 1; padding: 16px; overflow-y: auto; }
+.cloud-services { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.cloud-service { padding: 14px; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; text-align: center; }
+.cloud-service:hover { border-color: var(--accent); }
+.cloud-service.connected { border-color: var(--accent); }
+.cloud-service-icon { width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.cloud-service-icon svg { width: 20px; height: 20px; }
+.cloud-service-name { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+.cloud-service-status { font-size: 10px; color: var(--text2); }
+.cloud-service.connected .cloud-service-status { color: var(--accent); }
+
+/* SETTINGS PANEL */
+.settings-panel { flex: 1; padding: 16px; overflow-y: auto; }
+.settings-group { margin-bottom: 20px; }
+.settings-group h3 { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+.setting-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg-bubble-ai); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; gap: 10px; }
+.setting-label { font-size: 13px; }
+.setting-toggle { width: 38px; height: 20px; background: var(--border); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+.setting-toggle.on { background: var(--accent); }
+.setting-toggle::after { content: ''; width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; }
+.setting-toggle.on::after { transform: translateX(18px); }
+.slider-control { display: flex; align-items: center; gap: 8px; flex: 1; max-width: 180px; }
+.slider-control input[type="range"] { flex: 1; -webkit-appearance: none; height: 4px; background: var(--border); border-radius: 2px; outline: none; }
+.slider-control input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; cursor: pointer; }
+.slider-value { font-size: 12px; color: var(--accent); font-weight: 600; min-width: 28px; text-align: right; }
+.model-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; outline: none; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-bubble-ai); border: 1px solid var(--border); padding: 10px 16px; border-radius: 20px; font-size: 12px; z-index: 1000; transition: transform 0.3s ease; white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .sidebar { width: 48px; }
+  .nav-btn { width: 36px; height: 36px; }
+  .nav-btn svg { width: 16px; height: 16px; }
+  .msg { max-width: 88%; font-size: 13px; }
+  .gen-options { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+  .cloud-services { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+
+/* Theme selector chips */
+.theme-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.theme-option {
+  padding: 8px 12px;
+  background: var(--bg-bubble-ai);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-option:hover {
+  border-color: var(--accent);
+}
+.theme-option.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+  </div>
+  <button class="nav-btn active" data-panel="chat" onclick="switchPanel('chat')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span class="tooltip">Chat AI</span>
+  </button>
+  <button class="nav-btn" data-panel="models" onclick="switchPanel('models')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+    <span class="tooltip">Model Lokal</span>
+  </button>
+  <button class="nav-btn" data-panel="image" onclick="switchPanel('image')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <span class="tooltip">Generate Gambar</span>
+  </button>
+  <button class="nav-btn" data-panel="video" onclick="switchPanel('video')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    <span class="tooltip">Generate Video</span>
+  </button>
+  <button class="nav-btn" data-panel="voice" onclick="switchPanel('voice')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
+    <span class="tooltip">Suara (ARS/TTS)</span>
+  </button>
+  <button class="nav-btn" data-panel="camera" onclick="switchPanel('camera')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <span class="tooltip">Kamera</span>
+  </button>
+  <button class="nav-btn" data-panel="files" onclick="switchPanel('files')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+    <span class="tooltip">File Lokal</span>
+  </button>
+  <button class="nav-btn" data-panel="search" onclick="switchPanel('search')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span class="tooltip">Cari Web</span>
+  </button>
+  <button class="nav-btn" data-panel="cloud" onclick="switchPanel('cloud')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+    <span class="tooltip">Cloud API</span>
+  </button>
+  <div class="sidebar-spacer"></div>
+  <button class="nav-btn" data-panel="settings" onclick="switchPanel('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15 1.65 1.65 0 003.17 14H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68 1.65 1.65 0 0010 3.17V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <span class="tooltip">Pengaturan</span>
+  </button>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-model" onclick="switchPanel('models')">
+      <div class="header-model-icon" id="activeModelIcon">🔮</div>
+      <div class="header-model-info">
+        <div class="header-model-name" id="activeModelName">Qwen3.5-2B</div>
+        <div class="header-model-meta" id="activeModelMeta">Q4_K_M • 2.4 GB</div>
+      </div>
+    </div>
+    <div class="status-dot"></div>
+    <div class="chat-counter" id="chatCounter">0 pesan</div>
+    <div class="header-actions">
+      <button class="header-btn" onclick="toggleMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        <div class="dropdown" id="mainMenu">
+          <div class="dropdown-item" onclick="switchPanel('chat');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Chat
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('models');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Model Lokal
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('image');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            Generate Gambar
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('video');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            Generate Video
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('voice');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/></svg>
+            ARS / TTS
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('camera');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/></svg>
+            Kamera
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('files');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            File Lokal
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('search');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Cari Web
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('cloud');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+            Cloud API
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" onclick="clearChat();closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Chat Baru
+          </div>
+          <div class="dropdown-item" onclick="switchPanel('settings');closeMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15 1.65 1.65 0 003.17 14H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68 1.65 1.65 0 0010 3.17V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Pengaturan
+          </div>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- CHAT PANEL -->
+    <div class="panel active" id="panel-chat">
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg system">Chat baru • Qwen3.5-2B • CPU 4 threads</div>
+          <div class="msg ai">Halo! Saya AI assistant lokal di Termux. Ketik pesan dan tekan tombol kirim untuk chat.<span class="time">16:13</span></div>
+        </div>
+       <div class="chat-input-area">
+  <input type="file" id="fileInput" multiple style="display:none" onchange="handleFileSelect(this)">
+  
+  <button class="web-icon-btn" id="webIconBtn" onclick="toggleWebSearch()" title="Web Search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span class="web-dot"></span>
+  </button>
+  
+  <div class="chat-input-wrap">
+    <button class="input-btn" onclick="document.getElementById('fileInput').click()" title="Lampirkan File">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+    </button>
+    <button class="input-btn" onclick="switchPanel('camera')" title="Kamera">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </button>
+    <textarea class="chat-input" id="chatInput" placeholder="Ketik pesan atau /load model..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+  </div>
+  
+  <button class="input-btn send" onclick="sendMessage()" title="Kirim">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+  </button>
+</div>
+      </div>
+    </div>
+
+    <!-- MODELS PANEL -->
+    <div class="panel" id="panel-models">
+      <div class="models-panel">
+        <div class="models-header">
+          <h2>🧠 Model Lokal</h2>
+          <div class="models-stats">
+            <span>📊 <span id="totalModels">33</span> model</span>
+            <span>💾 ~50 GB</span>
+          </div>
+        </div>
+        <div class="info-box">
+          <strong>ℹ️ Info:</strong> Model disimpan di <code>/data/data/com.termux/files/home/models/</code>. Klik tombol <strong>Load</strong> untuk memuat model ke RAM.
+        </div>
+        <div class="models-filter" id="modelsFilter">
+          <div class="filter-chip active" data-filter="all">Semua</div>
+          <div class="filter-chip" data-filter="llm">💬 Chat/LLM</div>
+          <div class="filter-chip" data-filter="image">🎨 Gambar</div>
+          <div class="filter-chip" data-filter="video">🎬 Video</div>
+          <div class="filter-chip" data-filter="ars">🎤 ARS</div>
+          <div class="filter-chip" data-filter="tts">🔊 TTS</div>
+          <div class="filter-chip" data-filter="vae">🎭 VAE</div>
+        </div>
+        <div id="modelsList"></div>
+      </div>
+    </div>
+
+    <!-- IMAGE GEN PANEL -->
+    <div class="panel" id="panel-image">
+      <div class="gen-panel">
+        <div class="gen-section">
+          <h3>🎨 Prompt Gambar</h3>
+          <textarea class="gen-input" id="imagePrompt" placeholder="Deskripsikan gambar yang ingin dibuat... Contoh: Kucing lucu bermain di taman bunga, gaya anime, warna cerah"></textarea>
+        </div>
+        <div class="gen-section">
+          <h3>Model Aktif</h3>
+          <div class="gen-options" id="imageModelSelect">
+            <div class="gen-option selected" data-val="sd_turbo-f16-q8_0">SD Turbo</div>
+          </div>
+        </div>
+        <div class="gen-section">
+          <h3>Ukuran</h3>
+          <div class="gen-options" id="imageSize">
+            <div class="gen-option selected" data-val="512x512">512×512</div>
+            <div class="gen-option" data-val="768x768">768×768</div>
+            <div class="gen-option" data-val="1024x1024">1024×1024</div>
+            <div class="gen-option" data-val="512x768">512×768</div>
+            <div class="gen-option" data-val="768x512">768×512</div>
+          </div>
+        </div>
+        <div class="gen-section">
+          <h3>Langkah (Steps)</h3>
+          <div class="gen-options" id="imageSteps">
+            <div class="gen-option" data-val="15">15 (Cepat)</div>
+            <div class="gen-option selected" data-val="25">25 (Normal)</div>
+            <div class="gen-option" data-val="40">40 (Detail)</div>
+            <div class="gen-option" data-val="50">50 (Maks)</div>
+          </div>
+          <div class="number-input-wrap">
+            <label>Custom:</label>
+            <input type="number" class="number-input" id="customSteps" min="1" max="100" value="25" placeholder="Angka steps">
+          </div>
+          <div class="number-hint">Masukkan angka 1-100 untuk jumlah langkah sampling</div>
+        </div>
+        <div class="gen-section">
+          <h3>CFG Scale</h3>
+          <div class="gen-options" id="imageCfg">
+            <div class="gen-option" data-val="5">5</div>
+            <div class="gen-option selected" data-val="7">7</div>
+            <div class="gen-option" data-val="10">10</div>
+            <div class="gen-option" data-val="15">15</div>
+          </div>
+        </div>
+        <button class="gen-btn" id="genImageBtn" onclick="generateImage()">✨ Generate Gambar</button>
+        <div class="gen-results" id="imageResults"></div>
+      </div>
+    </div>
+
+    <!-- VIDEO GEN PANEL -->
+    <div class="panel" id="panel-video">
+      <div class="gen-panel">
+        <div class="gen-section">
+          <h3>🎬 Prompt Video</h3>
+          <textarea class="gen-input" id="videoPrompt" placeholder="Deskripsikan video yang ingin dibuat..."></textarea>
+        </div>
+        <div class="gen-section">
+          <h3>Model Aktif</h3>
+          <div class="gen-options" id="videoModelSelect">
+            <div class="gen-option selected">ltx-video-2b</div>
+            <div class="gen-option">ltxv-2b-0.9.6</div>
+          </div>
+        </div>
+        <div class="gen-section">
+          <h3>Durasi</h3>
+          <div class="gen-options" id="videoDuration">
+            <div class="gen-option selected" data-val="2">2 detik</div>
+            <div class="gen-option" data-val="4">4 detik</div>
+            <div class="gen-option" data-val="6">6 detik</div>
+            <div class="gen-option" data-val="8">8 detik</div>
+          </div>
+          <div class="number-input-wrap">
+            <label>Custom:</label>
+            <input type="number" class="number-input" id="customDuration" min="1" max="30" value="2" placeholder="Angka detik">
+          </div>
+          <div class="number-hint">Masukkan angka 1-30 untuk durasi video (detik)</div>
+        </div>
+        <div class="gen-section">
+          <h3>Resolusi</h3>
+          <div class="gen-options" id="videoRes">
+            <div class="gen-option selected" data-val="256x256">256×256</div>
+            <div class="gen-option" data-val="512x512">512×512</div>
+          </div>
+        </div>
+        <button class="gen-btn" onclick="generateVideo()"> Generate Video</button>
+        <div class="gen-results" id="videoResults"></div>
+      </div>
+    </div>
+
+    <!-- VOICE PANEL -->
+    <div class="panel" id="panel-voice">
+      <div class="voice-panel">
+        <div class="voice-visualizer" id="voiceVisualizer" onclick="toggleRecording()">
+          <div class="voice-waves" id="voiceWaves">
+            <div class="voice-wave" style="height:8px"></div>
+            <div class="voice-wave" style="height:16px"></div>
+            <div class="voice-wave" style="height:24px"></div>
+            <div class="voice-wave" style="height:16px"></div>
+            <div class="voice-wave" style="height:8px"></div>
+          </div>
+        </div>
+        <div class="voice-status" id="voiceStatus">Ketuk untuk merekam</div>
+        <div class="voice-controls">
+          <button class="voice-btn active" id="arsBtn" onclick="setVoiceMode('ars')">🎤 ARS</button>
+          <button class="voice-btn" id="ttsBtn" onclick="setVoiceMode('tts')">🔊 TTS</button>
+        </div>
+        <div class="voice-transcript" id="voiceTranscript">
+          Hasil transkripsi akan muncul di sini...
+        </div>
+        <div style="width:100%;max-width:400px">
+          <textarea class="gen-input" id="ttsInput" placeholder="Ketik teks untuk TTS..." style="min-height:60px"></textarea>
+          <button class="gen-btn" style="margin-top:8px" onclick="speakTTS()">🔊 Ucapkan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMERA PANEL -->
+    <div class="panel" id="panel-camera">
+      <div class="camera-panel">
+        <div class="camera-preview" id="cameraPreview">
+          <div class="camera-placeholder" id="cameraPlaceholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <p style="margin-top:12px;font-size:13px">Ketuk tombol di bawah untuk membuka kamera</p>
+          </div>
+          <video id="cameraVideo" style="display:none" autoplay playsinline></video>
+        </div>
+        <div class="camera-controls">
+          <button class="camera-btn" onclick="switchCamera()" title="Ganti Kamera">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          </button>
+          <button class="camera-btn" onclick="takePhoto()" title="Ambil Foto" style="border-color:var(--accent)">
+            <svg viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>
+          </button>
+          <button class="camera-btn" onclick="stopCamera()" title="Tutup Kamera">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILES PANEL -->
+    <div class="panel" id="panel-files">
+      <div class="file-browser">
+        <div class="file-path" id="filePath">
+          <span onclick="loadFiles('~/mesin')">📁 home</span>
+          <span class="sep">/</span>
+          <span onclick="navigateTo('/models')">models</span>
+        </div>
+        <div class="file-grid" id="fileGrid"></div>
+      </div>
+    </div>
+
+    <!-- SEARCH PANEL -->
+    <div class="panel" id="panel-search">
+      <div class="search-panel">
+        <div class="search-bar">
+          <input class="search-input" id="searchInput" placeholder="Cari di web..." onkeydown="if(event.key==='Enter')doSearch()">
+          <button class="search-btn" onclick="doSearch()">Cari</button>
+        </div>
+        <div class="search-results" id="searchResults">
+          <div style="text-align:center;color:var(--text2);padding:40px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="opacity:0.5;margin-bottom:12px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <p style="font-size:13px">Masukkan kata kunci untuk mencari di web</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLOUD PANEL -->
+    <div class="panel" id="panel-cloud">
+      <div class="cloud-panel">
+        <div class="gen-section">
+          <h3>☁️ Layanan Cloud</h3>
+          <div class="info-box">Isi API key, lalu tekan <strong>Simpan</strong>. Status akan diperbarui dari server.</div>
+        </div>
+        <div class="cloud-services">
+          <div class="cloud-service" data-service="openai">
+            <div class="cloud-service-icon" style="background:#10a37f20">
+              <svg viewBox="0 0 24 24" fill="#10a37f"><path d="M22.2 14.48l-.01-.01a4.47 4.47 0 00-3.82-6.73 4.47 4.47 0 00-7.65-3.17l-.01.01A4.47 4.47 0 003.1 10.27a4.47 4.47 0 003.82 6.73 4.47 4.47 0 007.65 3.17l.01-.01a4.47 4.47 0 007.62-5.68z"/></svg>
+            </div>
+            <div class="cloud-service-name">OpenAI</div>
+            <div class="cloud-service-status" data-status="OPENAI_API_KEY">Tidak terhubung</div>
+            <input type="password" class="cloud-key-input" data-key="OPENAI_API_KEY" placeholder="sk-..." style="display:none">
+            <button class="model-action-btn primary cloud-save-btn" data-key="OPENAI_API_KEY" style="display:none;margin-top:8px;width:100%">Simpan</button>
+          </div>
+          <div class="cloud-service" data-service="anthropic">
+            <div class="cloud-service-icon" style="background:#d9775720">
+              <svg viewBox="0 0 24 24" fill="#d97757"><circle cx="12" cy="12" r="10"/></svg>
+            </div>
+            <div class="cloud-service-name">Anthropic</div>
+            <div class="cloud-service-status" data-status="ANTHROPIC_API_KEY">Tidak terhubung</div>
+            <input type="password" class="cloud-key-input" data-key="ANTHROPIC_API_KEY" placeholder="sk-ant-..." style="display:none">
+            <button class="model-action-btn primary cloud-save-btn" data-key="ANTHROPIC_API_KEY" style="display:none;margin-top:8px;width:100%">Simpan</button>
+          </div>
+          <div class="cloud-service" data-service="google">
+            <div class="cloud-service-icon" style="background:#4285f420">
+              <svg viewBox="0 0 24 24" fill="#4285f4"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <div class="cloud-service-name">Google AI</div>
+            <div class="cloud-service-status" data-status="GOOGLE_API_KEY">Tidak terhubung</div>
+            <input type="password" class="cloud-key-input" data-key="GOOGLE_API_KEY" placeholder="AIza..." style="display:none">
+            <button class="model-action-btn primary cloud-save-btn" data-key="GOOGLE_API_KEY" style="display:none;margin-top:8px;width:100%">Simpan</button>
+          </div>
+          <div class="cloud-service" data-service="huggingface">
+            <div class="cloud-service-icon" style="background:#ff9d0920">
+              <svg viewBox="0 0 24 24" fill="#ff9d09"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="10" r="1.5" fill="white"/><circle cx="15" cy="10" r="1.5" fill="white"/></svg>
+            </div>
+            <div class="cloud-service-name">HuggingFace</div>
+            <div class="cloud-service-status" data-status="HUGGINGFACE_TOKEN">Tidak terhubung</div>
+            <input type="password" class="cloud-key-input" data-key="HUGGINGFACE_TOKEN" placeholder="hf_..." style="display:none">
+            <button class="model-action-btn primary cloud-save-btn" data-key="HUGGINGFACE_TOKEN" style="display:none;margin-top:8px;width:100%">Simpan</button>
+          </div>
+          <div class="cloud-service" data-service="replicate">
+            <div class="cloud-service-icon" style="background:#ff6b6b20">
+              <svg viewBox="0 0 24 24" fill="#ff6b6b"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+            </div>
+            <div class="cloud-service-name">Replicate</div>
+            <div class="cloud-service-status" data-status="REPLICATE_API_TOKEN">Tidak terhubung</div>
+            <input type="password" class="cloud-key-input" data-key="REPLICATE_API_TOKEN" placeholder="r8_..." style="display:none">
+            <button class="model-action-btn primary cloud-save-btn" data-key="REPLICATE_API_TOKEN" style="display:none;margin-top:8px;width:100%">Simpan</button>
+          </div>
+          <div class="cloud-service" data-service="groq">
+            <div class="cloud-service-icon" style="background:#f5503620">
+              <svg viewBox="0 0 24 24" fill="#f55036"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12z"/></svg>
+            </div>
+            <div class="cloud-service-name">Groq</div>
+            <div class="cloud-service-status" data-status="GROQ_API_KEY">Tidak terhubung</div>
+            <input type="password" class="cloud-key-input" data-key="GROQ_API_KEY" placeholder="gsk_..." style="display:none">
+            <button class="model-action-btn primary cloud-save-btn" data-key="GROQ_API_KEY" style="display:none;margin-top:8px;width:100%">Simpan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-panel">
+        <div class="settings-group">
+          <h3>⚡ CPU (No GPU)</h3>
+          <div class="setting-item">
+            <span class="setting-label">CPU Threads</span>
+            <div class="slider-control">
+              <input type="range" min="1" max="8" value="4" id="cpuThreads" oninput="updateSlider('cpuThreads','threadsVal')">
+              <span class="slider-value" id="threadsVal">4</span>
+            </div>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">RAM Allocation (GB)</span>
+            <div class="slider-control">
+              <input type="range" min="1" max="8" value="3" id="ramAlloc" oninput="updateSlider('ramAlloc','ramVal')">
+              <span class="slider-value" id="ramVal">3</span>
+            </div>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">Batch Size</span>
+            <div class="slider-control">
+              <input type="range" min="1" max="16" value="4" id="batchSize" oninput="updateSlider('batchSize','batchVal')">
+              <span class="slider-value" id="batchVal">4</span>
+            </div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h3>🧠 Model</h3>
+          <div class="setting-item">
+            <span class="setting-label">Context Size</span>
+            <div class="slider-control">
+              <input type="range" min="512" max="8192" step="512" value="2048" id="ctxSize" oninput="updateSlider('ctxSize','ctxVal')">
+              <span class="slider-value" id="ctxVal">2048</span>
+            </div>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">Quantization Default</span>
+            <select class="model-select">
+              <option>Q4_K_M (Rekomendasi)</option>
+              <option>Q2_K (Paling Ringan)</option>
+              <option>Q3_K_S</option>
+              <option>Q5_K_M</option>
+              <option>Q8_0 (Terbaik)</option>
+              <option>F16 (Full)</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">mmap (Memory Map)</span>
+            <div class="setting-toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">mlock (Kunci di RAM)</span>
+            <div class="setting-toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h3> ARS (Speech-to-Text)</h3>
+          <div class="setting-item">
+            <span class="setting-label">Model ARS Aktif</span>
+            <select class="model-select">
+              <option>Whisper Base (74M) - Cepat</option>
+              <option>Whisper Small (244M) - Akurat</option>
+              <option>Qwen3-ASR-0.6B</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">Bahasa Default</span>
+            <select class="model-select">
+              <option>Indonesia</option>
+              <option>English</option>
+              <option>Jawa</option>
+              <option>Sunda</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h3>🔊 TTS (Text-to-Speech)</h3>
+          <div class="setting-item">
+            <span class="setting-label">Model TTS Aktif</span>
+            <select class="model-select">
+              <option>Qwen3-TTS-12Hz-0.6B</option>
+              <option>Piper Indonesian</option>
+              <option>VITS Indonesian</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">Suara</span>
+            <select class="model-select">
+              <option>Female</option>
+              <option>Male</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h3>📁 Penyimpanan</h3>
+          <div class="setting-item">
+            <span class="setting-label">Lokasi Model</span>
+            <span style="font-size:11px;color:var(--text2);font-family:monospace">/data/data/com.termux/files/home/models/</span>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">Lokasi Output</span>
+            <span style="font-size:11px;color:var(--text2);font-family:monospace">/data/data/com.termux/files/home/mesin/data/</span>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">Penyimpanan Terpakai</span>
+            <span style="font-size:12px;color:var(--text2)">~50 GB / 128 GB</span>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h3>🎨 Tema Tampilan</h3>
+          <div class="setting-item">
+            <span class="setting-label">Pilih Tema</span>
+            <div class="theme-selector" id="themeSelector">
+              <div class="theme-option active" data-theme="mesin" title="Mesin (Default)">🟢 Default</div>
+              <div class="theme-option" data-theme="linear" title="Linear">🟣 Linear</div>
+              <div class="theme-option" data-theme="vercel" title="Vercel">⚫ Vercel</div>
+              <div class="theme-option" data-theme="stripe" title="Stripe">🟣 Stripe</div>
+              <div class="theme-option" data-theme="supabase" title="Supabase">🟢 Supabase</div>
+              <div class="theme-option" data-theme="cursor" title="Cursor">🟣 Cursor</div>
+              <div class="theme-option" data-theme="xai" title="xAI">⚪ xAI</div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h3>ℹ️ Tentang</h3>
+          <div class="setting-item">
+            <span class="setting-label">Mesin AI Version</span>
+            <span style="font-size:12px;color:var(--accent)">v0.8 • 3-Tier + Cloud</span>
+          </div>
+          <div class="setting-item">
+            <span class="setting-label">Backend</span>
+            <span style="font-size:11px;color:var(--text2)">llama.cpp • Router • Dispatcher</span>
+          </div>
+          <div class="setting-item" style="justify-content:flex-end;gap:8px;">
+            <button class="model-action-btn" onclick="resetSettings()">↺ Reset</button>
+            <button class="model-action-btn primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ DATA MODEL LOKAL ============
+const LOCAL_MODELS = [
+  { id: 'DeepSeek-R1-Distill-Llama-3B-Q3_K_M', name: 'DeepSeek R1 Distill Llama 3B', icon: '🤖', color: '#74b9ff', category: 'llm', usage: 'Chat / Reasoning', desc: 'Model reasoning dari DeepSeek, distill dari Llama 3B', size: '2.1 GB', quant: 'Q3_K_M', params: '3B', path: '/data/data/com.termux/files/home/models/DeepSeek-R1-Distill-Llama-3B-Q3_K_M.gguf' },
+  { id: 'LFM2.5-2.6B-Q3.8-TBrilliance-NEO-MAX-IQ4_XS', name: 'LFM2.5 2.6B Brilliance', icon: '⚡', color: '#fdcb6e', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model kecil dengan kualitas tinggi', size: '1.8 GB', quant: 'IQ4_XS', params: '2.6B', path: '/data/data/com.termux/files/home/models/LFM2.5-2.6B-Q3.8-TBrilliance-NEO-MAX-IQ4_XS.gguf' },
+  { id: 'LFM2.5-2.6B.Q4_K_M', name: 'LFM2.5 2.6B', icon: '⚡', color: '#fdcb6e', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model kecil dengan kualitas tinggi', size: '2.0 GB', quant: 'Q4_K_M', params: '2.6B', path: '/data/data/com.termux/files/home/models/LFM2.5-2.6B.Q4_K_M.gguf' },
+  { id: 'Qwen3-ASR-0.6B-Q8_0', name: 'Qwen3 ASR 0.6B', icon: '🎤', color: '#00cec9', category: 'ars', usage: 'Speech-to-Text', desc: 'Model ASR dari Qwen, sangat ringan', size: '600 MB', quant: 'Q8_0', params: '0.6B', path: '/data/data/com.termux/files/home/models/Qwen3-ASR-0.6B-Q8_0.gguf' },
+  { id: 'Qwen3-TTS-12Hz-0.6B-Base.Q4_K_M', name: 'Qwen3 TTS 0.6B', icon: '🔊', color: '#a29bfe', category: 'tts', usage: 'Text-to-Speech', desc: 'Model TTS dari Qwen, 12Hz output', size: '600 MB', quant: 'Q4_K_M', params: '0.6B', path: '/data/data/com.termux/files/home/models/Qwen3-TTS-12Hz-0.6B-Base.Q4_K_M.gguf' },
+  { id: 'Qwen3.5-0.8B-Q4_0', name: 'Qwen3.5 0.8B', icon: '🔮', color: '#00cec9', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model sangat ringan dari Qwen, cocok untuk HP low-end', size: '600 MB', quant: 'Q4_0', params: '0.8B', path: '/data/data/com.termux/files/home/models/Qwen3.5-0.8B-Q4_0.gguf' },
+  { id: 'Qwen3.5-2B-Q4_K_M', name: 'Qwen3.5 2B', icon: '', color: '#00cec9', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model dari Qwen, performa tinggi untuk ukuran kecil', size: '2.4 GB', quant: 'Q4_K_M', params: '2B', path: '/data/data/com.termux/files/home/models/Qwen3.5-2B-Q4_K_M.gguf', active: true },
+  { id: 'Qwen3.5-4B-IQ4_XS', name: 'Qwen3.5 4B', icon: '🔮', color: '#00cec9', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model besar dari Qwen, performa terbaik', size: '3.2 GB', quant: 'IQ4_XS', params: '4B', path: '/data/data/com.termux/files/home/models/Qwen3.5-4B-IQ4_XS.gguf' },
+  { id: 'Qwen3.8-2B-Uncensored-Q4_K_M', name: 'Qwen3.8 2B Uncensored', icon: '', color: '#e17055', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model uncensored dari Qwen, tanpa filter', size: '2.4 GB', quant: 'Q4_K_M', params: '2B', path: '/data/data/com.termux/files/home/models/Qwen3.8-2B-Uncensored-Q4_K_M.gguf' },
+  { id: 'Qwen3.8-4B-Q4_K_M', name: 'Qwen3.8 4B', icon: '🔮', color: '#e17055', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model besar dari Qwen 3.8', size: '3.2 GB', quant: 'Q4_K_M', params: '4B', path: '/data/data/com.termux/files/home/models/Qwen3.8-4B-Q4_K_M.gguf' },
+  { id: 'Qwen3Guard-Gen-0.6B.Q4_K_M', name: 'Qwen3Guard Gen 0.6B', icon: '️', color: '#6c5ce7', category: 'llm', usage: 'Safety / Guard', desc: 'Model safety dari Qwen', size: '600 MB', quant: 'Q4_K_M', params: '0.6B', path: '/data/data/com.termux/files/home/models/Qwen3Guard-Gen-0.6B.Q4_K_M.gguf' },
+  { id: 'Qwen_Qwen3-VL-2B-Instruct-Q4_K_M', name: 'Qwen3 VL 2B', icon: '👁️', color: '#fd79a8', category: 'llm', usage: 'Vision / Multimodal', desc: 'Model vision dari Qwen, bisa lihat gambar', size: '2.4 GB', quant: 'Q4_K_M', params: '2B', path: '/data/data/com.termux/files/home/models/Qwen_Qwen3-VL-2B-Instruct-Q4_K_M.gguf' },
+  { id: 'deepseek-v4-distill-qwen3-1.7b-Q4_K_M', name: 'DeepSeek V4 Distill 1.7B', icon: '🤖', color: '#74b9ff', category: 'llm', usage: 'Chat / Reasoning', desc: 'Model reasoning dari DeepSeek V4', size: '1.4 GB', quant: 'Q4_K_M', params: '1.7B', path: '/data/data/com.termux/files/home/models/deepseek-v4-distill-qwen3-1.7b-Q4_K_M.gguf' },
+  { id: 'gemma-2-2b-it-Q4_K_M', name: 'Gemma 2 2B IT', icon: '💎', color: '#a29bfe', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model dari Google, performa tinggi', size: '2.0 GB', quant: 'Q4_K_M', params: '2B', path: '/data/data/com.termux/files/home/models/gemma-2-2b-it-Q4_K_M.gguf' },
+  { id: 'gemma-4b-instruct-v0.2-q6_k', name: 'Gemma 4B Instruct', icon: '💎', color: '#a29bfe', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model besar dari Google', size: '3.5 GB', quant: 'Q6_K', params: '4B', path: '/data/data/com.termux/files/home/models/gemma-4b-instruct-v0.2-q6_k.gguf' },
+  { id: 'llama3.2-3b-instruct-q4_0', name: 'Llama 3.2 3B', icon: '🦙', color: '#6c5ce7', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model dari Meta, sangat populer', size: '2.4 GB', quant: 'Q4_0', params: '3B', path: '/data/data/com.termux/files/home/models/llama3.2-3b-instruct-q4_0.gguf' },
+  { id: 'ltx-video-2b-v0.9.5-Q4_0', name: 'LTX Video 2B', icon: '🎬', color: '#fdcb6e', category: 'video', usage: 'Generate Video', desc: 'Model video generation dari LTX', size: '2.0 GB', quant: 'Q4_0', params: '2B', path: '/data/data/com.termux/files/home/models/ltx-video-2b-v0.9.5-Q4_0.gguf' },
+  { id: 'ltxv-2b-0.9.6-distilled-04-25-Q4_0', name: 'LTXV 2B 0.9.6', icon: '🎬', color: '#fdcb6e', category: 'video', usage: 'Generate Video', desc: 'Model video generation versi distilled', size: '2.0 GB', quant: 'Q4_0', params: '2B', path: '/data/data/com.termux/files/home/models/ltxv-2b-0.9.6-distilled-04-25-Q4_0.gguf' },
+  { id: 'ltxv-vae-3d', name: 'LTXV VAE 3D', icon: '🎭', color: '#e17055', category: 'vae', usage: 'VAE Decoder', desc: 'VAE decoder untuk video 3D', size: '300 MB', quant: 'FP16', params: '-', path: '/data/data/com.termux/files/home/models/ltxv-vae-3d' },
+  { id: 'ltxv-vae-BF16', name: 'LTXV VAE BF16', icon: '🎭', color: '#e17055', category: 'vae', usage: 'VAE Decoder', desc: 'VAE decoder BF16', size: '600 MB', quant: 'BF16', params: '-', path: '/data/data/com.termux/files/home/models/ltxv-vae-BF16' },
+  { id: 'ltxv-vae-F16', name: 'LTXV VAE F16', icon: '', color: '#e17055', category: 'vae', usage: 'VAE Decoder', desc: 'VAE decoder F16', size: '600 MB', quant: 'F16', params: '-', path: '/data/data/com.termux/files/home/models/ltxv-vae-F16' },
+  { id: 'ltxv-vae-Q4_K_M', name: 'LTXV VAE Q4', icon: '🎭', color: '#e17055', category: 'vae', usage: 'VAE Decoder', desc: 'VAE decoder quantized', size: '200 MB', quant: 'Q4_K_M', params: '-', path: '/data/data/com.termux/files/home/models/ltxv-vae-Q4_K_M' },
+  { id: 'ltxv-vae-Q8_0', name: 'LTXV VAE Q8', icon: '🎭', color: '#e17055', category: 'vae', usage: 'VAE Decoder', desc: 'VAE decoder Q8', size: '400 MB', quant: 'Q8_0', params: '-', path: '/data/data/com.termux/files/home/models/ltxv-vae-Q8_0' },
+  { id: 'ltxv-vae-sliced', name: 'LTXV VAE Sliced', icon: '🎭', color: '#e17055', category: 'vae', usage: 'VAE Decoder', desc: 'VAE decoder sliced untuk RAM rendah', size: '200 MB', quant: 'FP16', params: '-', path: '/data/data/com.termux/files/home/models/ltxv-vae-sliced' },
+  { id: 'model-Q4_K_M', name: 'Model Generic', icon: '📦', color: '#636e72', category: 'llm', usage: 'Chat', desc: 'Model generic', size: '2.0 GB', quant: 'Q4_K_M', params: '-', path: '/data/data/com.termux/files/home/models/model-Q4_K_M.gguf' },
+  { id: 'phi-4-mini-instruct-q4_k_m', name: 'Phi-4 Mini Instruct', icon: '🔮', color: '#00cec9', category: 'llm', usage: 'Chat / Asisten AI', desc: 'Model dari Microsoft, sangat ringan', size: '2.4 GB', quant: 'Q4_K_M', params: '3.8B', path: '/data/data/com.termux/files/home/models/phi-4-mini-instruct-q4_k_m.gguf' },
+  { id: 'qwen3-4b-abliterated-q4_k_m', name: 'Qwen3 4B Abliterated', icon: '🔮', color: '#e17055', category: 'llm', usage: 'Chat / Uncensored', desc: 'Model uncensored dari Qwen3', size: '3.2 GB', quant: 'Q4_K_M', params: '4B', path: '/data/data/com.termux/files/home/models/qwen3-4b-abliterated-q4_k_m.gguf' },
+  { id: 'sd-v1-5-q4_0', name: 'Stable Diffusion 1.5', icon: '🎨', color: '#ff7675', category: 'image', usage: 'Generate Gambar', desc: 'Model image generation klasik', size: '2.0 GB', quant: 'Q4_0', params: '860M', path: '/data/data/com.termux/files/home/models/sd-v1-5-q4_0.gguf' },
+  { id: 'sd3.5_medium-Q4_K_M', name: 'SD 3.5 Medium', icon: '🎨', color: '#ff7675', category: 'image', usage: 'Generate Gambar', desc: 'Model image generation terbaru', size: '3.5 GB', quant: 'Q4_K_M', params: '2.5B', path: '/data/data/com.termux/files/home/models/sd3.5_medium-Q4_K_M.gguf' },
+  { id: 'sd_turbo-f16-q8_0', name: 'SD Turbo', icon: '⚡', color: '#e17055', category: 'image', usage: 'Generate Gambar', desc: 'Model image generation super cepat', size: '2.8 GB', quant: 'Q8_0', params: '-', path: '/data/data/com.termux/files/home/models/sd_turbo-f16-q8_0.gguf' },
+  { id: 'stable-code-instruct-3b-Q4_K_M', name: 'Stable Code 3B', icon: '', color: '#74b9ff', category: 'llm', usage: 'Coding / Programming', desc: 'Model khusus untuk coding', size: '2.4 GB', quant: 'Q4_K_M', params: '3B', path: '/data/data/com.termux/files/home/models/stable-code-instruct-3b-Q4_K_M.gguf' },
+  { id: 't5-v1_1-xl-q4_k_m', name: 'T5 v1.1 XL', icon: '🧠', color: '#6c5ce7', category: 'llm', usage: 'Text Processing', desc: 'Model text processing dari Google', size: '3.0 GB', quant: 'Q4_K_M', params: '3B', path: '/data/data/com.termux/files/home/models/t5-v1_1-xl-q4_k_m.gguf' },
+  { id: 'tiny-sd-turbo_q8_0', name: 'Tiny SD Turbo', icon: '⚡', color: '#e17055', category: 'image', usage: 'Generate Gambar', desc: 'Model image generation paling ringan', size: '1.0 GB', quant: 'Q8_0', params: '-', path: '/data/data/com.termux/files/home/models/tiny-sd-turbo_q8_0.gguf' },
+];
+
+// ============ STATE ============
+let currentPanel = 'chat';
+let currentFilter = 'all';
+let webSearchEnabled = false;
+let isRecording = false;
+let voiceMode = 'ars';
+let cameraStream = null;
+let facingMode = 'environment';
+let activeModel = '';
+let fetchedModels = [];
+
+async function fetchModels() {
+  try {
+    const res = await fetch('/api/models');
+    const data = await res.json();
+    if (data.models && Array.isArray(data.models)) {
+      fetchedModels = data.models;
+      if (!activeModel && fetchedModels.length) {
+        activeModel = fetchedModels[0].name;
+      }
+      renderModels();
+      updateActiveModelBadge();
+    }
+  } catch (e) {
+    console.error('Gagal memuat model:', e);
+  }
+}
+
+// ============ PANEL SWITCHING ============
+function switchPanel(name) {
+  currentPanel = name;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  const navBtn = document.querySelector(`.nav-btn[data-panel="${name}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  
+  if (name === 'files') loadFiles();
+  if (name === 'models') renderModels();
+}
+
+// ============ RENDER MODELS ============
+function renderModels() {
+  const container = document.getElementById('modelsList');
+  const categories = {
+    llm: { title: '💬 Chat / LLM', desc: 'Untuk chat, tanya jawab, dan tugas teks' },
+    image: { title: '🎨 Image Generation', desc: 'Untuk generate gambar dari teks' },
+    video: { title: '🎬 Video Generation', desc: 'Untuk generate video' },
+    ars: { title: '🎤 Automatic Speech Recognition', desc: 'Untuk transkripsi suara ke teks' },
+    tts: { title: '🔊 Text-to-Speech', desc: 'Untuk mengubah teks menjadi suara' },
+    vae: { title: ' VAE Decoder', desc: 'Untuk decode latent space' }
+  };
+  
+  if (!fetchedModels.length) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text2);font-size:12px">Memuat model...</div>';
+    fetchModels();
+    return;
+  }
+  
+  let html = '';
+  Object.keys(categories).forEach(cat => {
+    const models = fetchedModels.filter(m => m.category === cat && (currentFilter === 'all' || currentFilter === cat));
+    if (models.length === 0) return;
+    
+    html += `<div class="model-category" data-cat="${cat}">
+      <div class="category-title">${categories[cat].title}</div>`;
+    
+    models.forEach(m => {
+      const isActive = m.name === activeModel;
+      const displayName = m.display_name || m.name.replace('.gguf', '');
+      html += `
+        <div class="model-card ${isActive ? 'active' : ''}" data-id="${m.name}" data-cat="${m.category}">
+          <div class="model-card-header">
+            <div class="model-card-icon" style="background:#00cec920">🔮</div>
+            <div class="model-card-info">
+              <div class="model-card-name">
+                ${displayName}
+                ${isActive ? '<span class="active-badge">AKTIF</span>' : ''}
+              </div>
+              <div class="model-card-desc">Model lokal</div>
+            </div>
+          </div>
+          <div class="model-card-meta">
+            <div class="meta-item">📦 ${m.size}</div>
+            <div class="meta-item">⚙️ ${m.quant || '-'}</div>
+            <div class="meta-item">🔢 ${m.params || '-'}</div>
+            <div class="meta-item">🎯 ${m.category.toUpperCase()}</div>
+          </div>
+          <div class="model-card-path">${m.path}</div>
+          <div class="model-card-actions">
+            <button class="model-action-btn ${isActive ? 'active-action' : 'primary'}" onclick="event.stopPropagation();loadModelFromUI('${m.name}', this)">
+  ${isActive ? '✅ Aktif' : '→ Load'}
+</button>
+            <button class="model-action-btn" onclick="event.stopPropagation();copyPath('${m.path}')">📋 Path</button>
+            <button class="model-action-btn" onclick="event.stopPropagation();downloadModel('${m.path}')">⬇️</button>
+            <button class="model-action-btn" style="color:var(--danger)" onclick="event.stopPropagation();deleteModel('${m.path}', '${m.name}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+  });
+  
+  container.innerHTML = html || '<div style="text-align:center;padding:30px;color:var(--text2);font-size:12px">Tidak ada model untuk filter ini</div>';
+}
+
+  async function loadModelFromUI(modelName, btnElement) {
+  const originalText = btnElement.innerText;
+  btnElement.innerText = '⏳ Memuat...';
+  btnElement.disabled = true;
+  btnElement.style.opacity = '0.7';
+
+  try {
+    const response = await fetch('/load', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: modelName })
+    });
+    
+    const result = await response.json();
+
+    if (result.ok) {
+      activeModel = modelName;
+      renderModels();
+      showToast(`✅ ${modelName} berhasil dimuat!`);
+      
+      const cleanName = modelName.replace('.gguf', '');
+      document.getElementById('activeModelName').innerText = cleanName;
+      document.getElementById('activeModelMeta').innerText = 'Loaded via UI';
+    } else {
+      btnElement.innerText = '❌ Gagal';
+      showToast(`❌ Gagal: ${result.error}`);
+      setTimeout(() => {
+        btnElement.innerText = originalText;
+        btnElement.disabled = false;
+        btnElement.style.opacity = '1';
+      }, 2000);
+    }
+  } catch (error) {
+    btnElement.innerText = '⚠️ Error';
+    showToast('⚠️ Gagal koneksi ke server');
+    setTimeout(() => {
+      btnElement.innerText = originalText;
+      btnElement.disabled = false;
+      btnElement.style.opacity = '1';
+    }, 2000);
+  }
+}
+
+async function deleteModel(path, name) {
+  if (!confirm(`Hapus model ${name}?`)) return;
+  try {
+    const res = await fetch(`/models/delete?path=${encodeURIComponent(path)}`, {method:'POST'});
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Gagal hapus');
+    showToast(`🗑️ ${name} dihapus`);
+    fetchModels();
+  } catch (e) {
+    showToast(`❌ ${e.message}`);
+  }
+}
+
+function downloadModel(path) {
+  window.open(`/models/download?path=${encodeURIComponent(path)}`, '_blank');
+}
+
+function copyPath(path) {
+  const fullPath = path.replace('~', '/data/data/com.termux/files/home');
+  if (navigator.clipboard) navigator.clipboard.writeText(fullPath);
+  showToast('📋 Path disalin');
+}
+
+function updateActiveModelBadge() {
+  const current = LOCAL_MODELS.find(m => m.id === activeModel);
+  if (current) {
+    document.getElementById('activeModelIcon').textContent = current.icon;
+    document.getElementById('activeModelIcon').style.background = current.color + '20';
+    document.getElementById('activeModelName').textContent = current.name;
+    document.getElementById('activeModelMeta').textContent = `${current.quant} • ${current.size}`;
+  }
+}
+
+document.getElementById('modelsFilter').addEventListener('click', (e) => {
+  if (e.target.classList.contains('filter-chip')) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    renderModels();
+  }
+});
+
+// ============ CHAT ============
+function getTimeStr() {
+  const now = new Date();
+  return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const ta = e.target;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    ta.value = ta.value.substring(0, start) + '\n' + ta.value.substring(end);
+    ta.selectionStart = ta.selectionEnd = start + 1;
+    autoResize(ta);
+  }
+}
+
+function updateChatCounter() {
+  const msgs = document.querySelectorAll('#chatMessages .msg.user, #chatMessages .msg.ai');
+  document.getElementById('chatCounter').textContent = msgs.length + ' pesan';
+}
+
+function addMessageToDOM(text, type, timeStr) {
+  const container = document.getElementById('chatMessages');
+  const msg = document.createElement('div');
+  msg.className = 'msg ' + type;
+  msg.innerHTML = text.replace(/\n/g, '<br>') + `<span class="time">${timeStr}</span>`;
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
+  updateChatCounter();
+}
+
+
+  async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMessageToDOM(text, 'user', getTimeStr());
+  input.value = '';
+  input.style.height = 'auto';
+  
+  const container = document.getElementById('chatMessages');
+  const typing = document.createElement('div');
+  typing.className = 'typing-indicator';
+  typing.id = 'typingIndicator';
+  typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  container.appendChild(typing);
+  container.scrollTop = container.scrollHeight;
+
+  try {
+    // 🔌 INI KABELNYA: Mengirim ke /chat di server.py
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await res.json();
+    
+    document.getElementById('typingIndicator')?.remove();
+    addMessageToDOM(data.answer, 'ai', getTimeStr());
+  } catch (err) {
+    document.getElementById('typingIndicator')?.remove();
+    addMessageToDOM("⚠️ Gagal terhubung ke server: " + err, 'ai', getTimeStr());
+  }
+}
+
+function clearChat() {
+  document.getElementById('chatMessages').innerHTML = '<div class="msg system">Chat baru • Riwayat dihapus</div>';
+  updateChatCounter();
+  showToast('✅ Chat dibersihkan');
+}
+
+function toggleWebSearch() {
+  webSearchEnabled = !webSearchEnabled;
+  document.getElementById('webIconBtn').classList.toggle('active', webSearchEnabled);
+  showToast(webSearchEnabled ? '🔍 Web Search aktif' : 'Web Search nonaktif');
+}
+
+// ============ IMAGE GEN ============
+document.querySelectorAll('.gen-options').forEach(group => {
+  group.addEventListener('click', (e) => {
+    if (e.target.classList.contains('gen-option')) {
+      group.querySelectorAll('.gen-option').forEach(o => o.classList.remove('selected'));
+      e.target.classList.add('selected');
+      if (group.id === 'imageSteps') document.getElementById('customSteps').value = e.target.dataset.val;
+      if (group.id === 'videoDuration') document.getElementById('customDuration').value = e.target.dataset.val;
+    }
+  });
+});
+
+document.getElementById('customSteps').addEventListener('input', function() {
+  const val = parseInt(this.value);
+  document.querySelectorAll('#imageSteps .gen-option').forEach(o => {
+    o.classList.toggle('selected', parseInt(o.dataset.val) === val);
+  });
+});
+
+document.getElementById('customDuration').addEventListener('input', function() {
+  const val = parseInt(this.value);
+  document.querySelectorAll('#videoDuration .gen-option').forEach(o => {
+    o.classList.toggle('selected', parseInt(o.dataset.val) === val);
+  });
+});
+
+function generateImage() {
+  const prompt = document.getElementById('imagePrompt').value.trim();
+  if (!prompt) { showToast('Masukkan prompt terlebih dahulu'); return; }
+
+  const steps = parseInt(document.getElementById('customSteps').value) || 18;
+  const cfg = parseFloat(document.getElementById('customCfg').value) || 7.0;
+  const sizeText = (document.querySelector('#imageSize .gen-option.selected') || {}).dataset?.val || '640x640';
+  const [width, height] = sizeText.split('x').map(Number);
+  const selectedModel = document.querySelector('#imageModelSelect .gen-option.selected') || document.querySelector('#imageModelSelect .gen-option');
+  const modelId = selectedModel ? selectedModel.dataset.val : 'sd-v1-5-q4_0';
+
+  const btn = document.getElementById('genImageBtn');
+  btn.disabled = true;
+  btn.textContent = `⏳ Generating (${steps} steps)...`;
+
+  const results = document.getElementById('imageResults');
+  const item = document.createElement('div');
+  item.className = 'gen-result-item';
+  item.innerHTML = `<div class="placeholder"> Generating...<br><small>${steps} steps</small></div><div class="gen-progress"><div class="gen-progress-bar"></div></div>`;
+  results.prepend(item);
+
+  fetch('/generate_image', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({prompt, steps, cfg, width, height, seed: -12345, model: modelId})
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.ok) throw new Error(data.error || 'Gagal generate gambar');
+    item.innerHTML = `<img src="${data.image}" style="max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);" /><div class="placeholder" style="color:var(--accent)">✓ Gambar dibuat<br><small style="color:var(--text2)">${prompt.substring(0,25)}...</small></div>`;
+    showToast('✓ Gambar berhasil di-generate!');
+  })
+  .catch(err => {
+    item.innerHTML = `<div class="placeholder" style="color:var(--danger)">❌ Gagal<br><small>${err.message}</small></div>`;
+    showToast('❌ Gagal generate gambar');
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.textContent = '✨ Generate Gambar';
+  });
+}
+
+function generateVideo() {
+  const prompt = document.getElementById('videoPrompt').value.trim();
+  if (!prompt) { showToast('Masukkan prompt terlebih dahulu'); return; }
+  
+  const duration = parseInt(document.getElementById('customDuration').value) || 2;
+  const results = document.getElementById('videoResults');
+  const item = document.createElement('div');
+  item.className = 'gen-result-item';
+  item.innerHTML = `<div class="placeholder">🎬 Generating...<br><small>${duration}s</small></div><div class="gen-progress"><div class="gen-progress-bar"></div></div>`;
+  results.prepend(item);
+  
+  fetch('/generate_video', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({prompt, duration})
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.ok) {
+      item.innerHTML = `<div class="placeholder" style="color:var(--danger)">❌ ${data.error || 'Gagal generate video'}</div>`;
+      showToast('❌ ' + (data.error || 'Gagal generate video'));
+    } else {
+      item.innerHTML = `<video controls style="max-width:100%;border-radius:8px;" src="${data.video}"></video><div class="placeholder" style="color:var(--accent)">✓ Video dibuat<br><small style="color:var(--text2)">${prompt.substring(0,25)}...</small></div>`;
+      showToast('✓ Video berhasil di-generate!');
+    }
+  })
+  .catch(err => {
+    item.innerHTML = `<div class="placeholder" style="color:var(--danger)">❌ Gagal<br><small>${err.message}</small></div>`;
+    showToast('❌ Gagal generate video');
+  });
+}
+
+// ============ VOICE ============
+async function toggleRecording() {
+  if (isRecording) {
+    // stop
+    isRecording = false;
+    const viz = document.getElementById('voiceVisualizer');
+    const status = document.getElementById('voiceStatus');
+    viz.classList.remove('recording');
+    status.textContent = 'Mengolah...';
+    stopWaveAnimation();
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+    return;
+  }
+
+  const mode = voiceMode || 'ars';
+  if (mode === 'tts') {
+    showToast('Ganti ke mode ARS untuk merekam');
+    return;
+  }
+
+  const chunks = [];
+  let stream = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    showToast('Izin mikrofon ditolak');
+    return;
+  }
+  const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+  mediaRecorder = new MediaRecorder(stream, { mimeType });
+  mediaRecorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+  mediaRecorder.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    const blob = new Blob(chunks, { type: mimeType });
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = (reader.result || '').split(',')[1] || '';
+      if (!base64) {
+        showToast('Rekaman kosong'); return;
+      }
+      try {
+        const res = await fetch('/stt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ audio: 'data:' + mimeType + ';base64,' + base64 })
+        });
+        const data = await res.json();
+        const out = document.getElementById('voiceTranscript');
+        if (!data.ok) throw new Error(data.error || 'STT gagal');
+        out.textContent = data.text || '(kosong)';
+        if (data.text && data.text.trim()) {
+          addMessageToDOM(data.text.trim(), 'user', getTimeStr());
+          sendMessageFromText(data.text.trim());
+        }
+      } catch (err) {
+        showToast('❌ STT gagal: ' + err);
+      }
+    };
+    reader.readAsDataURL(blob);
+  };
+  mediaRecorder.start();
+  isRecording = true;
+  const viz = document.getElementById('voiceVisualizer');
+  const status = document.getElementById('voiceStatus');
+  viz.classList.add('recording');
+  status.textContent = '🔴 Merekam... Ketuk untuk berhenti';
+  animateWaves();
+}
+
+function sendMessageFromText(text) {
+  const input = document.getElementById('chatInput');
+  input.value = text;
+  sendMessage();
+  input.value = '';
+}
+
+let mediaRecorder = null;
+
+function setVoiceMode(mode) {
+  voiceMode = mode;
+  document.getElementById('arsBtn').classList.toggle('active', mode === 'ars');
+  document.getElementById('ttsBtn').classList.toggle('active', mode === 'tts');
+}
+
+function speakTTS() {
+  const text = document.getElementById('ttsInput').value.trim();
+  if (!text) { showToast('Ketik teks dulu'); return; }
+  (async () => {
+    try {
+      const res = await fetch('/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, pitch: 1.0, rate: 1.0 })
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'TTS gagal');
+      showToast('🔊 Memutar via Termux TTS');
+    } catch (err) {
+      showToast('❌ TTS gagal: ' + err);
+    }
+  })();
+}
+
+// ============ CAMERA ============
+async function startCamera() {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+    const video = document.getElementById('cameraVideo');
+    video.srcObject = cameraStream;
+    video.style.display = 'block';
+    document.getElementById('cameraPlaceholder').style.display = 'none';
+    showToast('Kamera aktif');
+  } catch (err) {
+    showToast('Gagal akses kamera');
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  document.getElementById('cameraVideo').style.display = 'none';
+  document.getElementById('cameraPlaceholder').style.display = 'flex';
+  showToast('Kamera dimatikan');
+}
+
+function switchCamera() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  if (cameraStream) { stopCamera(); startCamera(); }
+}
+
+function takePhoto() {
+  if (!cameraStream) { startCamera(); return; }
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'photo_' + Date.now() + '.png';
+    a.click();
+    showToast('📸 Foto disimpan');
+  });
+}
+
+// ============ FILE LOKAL (NYAMBUNG KE BACKEND) ============
+let currentFilePath = '/data/data/com.termux/files/home/mesin';
+
+function getFileIcon(name, isDir) {
+    if (isDir) return '📁';
+    const ext = name.split('.').pop().toLowerCase();
+    if (['gguf', 'bin', 'safetensors'].includes(ext)) return '🧠';
+    if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return '🖼️';
+    if (['mp3', 'wav', 'ogg', 'flac'].includes(ext)) return '🎵';
+    if (['mp4', 'mkv', 'avi', 'webm'].includes(ext)) return '🎬';
+    if (['txt', 'md'].includes(ext)) return '📄';
+    if (['py', 'js', 'sh', 'bash'].includes(ext)) return '⚙️';
+    if (['json', 'yaml', 'yml', 'ini', 'cfg'].includes(ext)) return '🔧';
+    if (['log'].includes(ext)) return '📋';
+    return '📦';
+}
+
+async function loadFiles(path = currentFilePath) {
+    currentFilePath = path;
+    const grid = document.getElementById('fileGrid');
+    const pathBar = document.getElementById('filePath');
+    
+    if (!grid) return;
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:20px; color:var(--text2)">⏳ Memuat...</div>';
+    
+    try {
+        const res = await fetch(`/files/list?path=${encodeURIComponent(path)}`);
+        const data = await res.json();
+        
+        if (data.error) {
+            grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--danger)">❌ ${data.error}</div>`;
+            return;
+        }
+
+        // Update Breadcrumb
+        const pathParts = data.path.split('/').filter(p => p);
+        let pathHtml = `<span onclick="loadFiles('~/mesin')">📁 home</span>`;
+        let buildPath = '~/mesin';
+        for (let i = 0; i < pathParts.length; i++) {
+            buildPath += '/' + pathParts[i];
+            pathHtml += `<span class="sep">/</span><span onclick="loadFiles('${buildPath}')">${pathParts[i]}</span>`;
+        }
+        pathBar.innerHTML = pathHtml;
+
+        // Render Grid
+        if (data.items.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:20px; color:var(--text2)">📂 Folder kosong</div>';
+            return;
+        }
+        
+        grid.innerHTML = data.items.map(f => {
+            const ext = f.name.split('.').pop().toLowerCase();
+            const icon = getFileIcon(f.name, f.is_dir);
+            
+            let action = '';
+            if (f.is_dir) {
+                action = `loadFiles('${f.path}')`;
+            } else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) {
+                action = `openMedia('${f.path}', 'image', '${f.name}')`;
+            } else if (['mp4', 'mkv', 'avi', 'webm'].includes(ext)) {
+                action = `openMedia('${f.path}', 'video', '${f.name}')`;
+            } else if (['txt', 'md', 'py', 'json', 'yaml', 'sh', 'log', 'cfg', 'ini'].includes(ext)) {
+                action = `readFile('${f.path}', '${f.name}')`;
+            } else {
+                action = `showToast('📦 Format tidak didukung untuk preview')`;
+            }
+            
+            return `<div class="file-item" onclick="${action}">
+                <div style="font-size:28px">${icon}</div>
+                <div class="file-name" title="${f.name}">${f.name}</div>
+                <div style="font-size:9px; color:var(--text2); margin-top:2px">${f.is_dir ? 'Folder' : f.size}</div>
+            </div>`;
+        }).join('');
+    } catch (err) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--danger)">❌ Gagal koneksi</div>`;
+    }
+}
+
+async function readFile(path, name) {
+    showToast(`📖 Membaca ${name}...`);
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = `
+        <div style="background:var(--bg-header);border:1px solid var(--border);border-radius:12px;max-width:90vw;max-height:80vh;width:600px;display:flex;flex-direction:column;overflow:hidden;">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-weight:600;font-size:14px;">📄 ${name}</div>
+                <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background:transparent;border:none;color:var(--text2);cursor:pointer;font-size:20px;">✕</button>
+            </div>
+            <pre style="flex:1;overflow:auto;padding:16px;font-size:12px;line-height:1.5;color:var(--text);white-space:pre-wrap;word-break:break-word;margin:0;">⏳ Memuat...</pre>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    try {
+        const res = await fetch(`/files/read?path=${encodeURIComponent(path)}`);
+        const data = await res.json();
+        const pre = modal.querySelector('pre');
+        if (data.error) {
+            pre.textContent = `❌ ${data.error}`;
+            pre.style.color = 'var(--danger)';
+        } else {
+            pre.textContent = data.content || '(file kosong)';
+        }
+    } catch (err) {
+        modal.querySelector('pre').textContent = `❌ Gagal koneksi: ${err}`;
+    }
+}
+
+function openMedia(path, type, name) {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    
+    const serveUrl = `/files/serve?path=${encodeURIComponent(path)}`;
+    let contentHtml = '';
+    
+    if (type === 'image') {
+        contentHtml = `<img src="${serveUrl}" style="max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);" />`;
+    } else if (type === 'video') {
+        contentHtml = `<video src="${serveUrl}" controls autoplay style="max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);"></video>`;
+    }
+
+    modal.innerHTML = `
+        <div style="position:relative;max-width:100%;max-height:100%;display:flex;flex-direction:column;align-items:center;">
+            <button onclick="this.closest('div').parentElement.remove()" style="position:absolute;top:-40px;right:0;background:transparent;border:none;color:white;cursor:pointer;font-size:24px;z-index:2001;">✕</button>
+            ${contentHtml}
+            <div style="text-align:center;color:white;margin-top:12px;font-size:14px;opacity:0.8;">${name}</div>
+        </div>
+    `;
+    
+    // Tutup modal kalau klik di luar gambar/video
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+    
+    document.body.appendChild(modal);
+}
+
+function navigateTo(path) { 
+    loadFiles(path); 
+}
+
+// ============ SEARCH ============
+function doSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+  
+  const results = document.getElementById('searchResults');
+  results.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px"> Mencari...</div>';
+  
+  setTimeout(() => {
+    const mockResults = [
+      { title: `${query} - Wikipedia`, url: 'id.wikipedia.org', snippet: `Informasi lengkap tentang ${query}...` },
+      { title: `Panduan ${query} 2026`, url: 'example.com', snippet: `Pelajari semua tentang ${query}...` },
+    ];
+    
+    results.innerHTML = mockResults.map(r => `
+      <div class="search-result" onclick="window.open('https://${r.url}', '_blank')">
+        <div class="search-result-title">${r.title}</div>
+        <div class="search-result-url">${r.url}</div>
+        <div class="search-result-snippet">${r.snippet}</div>
+      </div>
+    `).join('');
+  }, 800);
+}
+
+// ============ CLOUD ============
+async function refreshCloudStatus() {
+  try {
+    const res = await fetch('/config');
+    const data = await res.json();
+    const statusMap = {
+      GROQ_API_KEY: 'Terhubung',
+      OPENROUTER_API_KEY: 'Terhubung',
+      GEMINI_API_KEY: 'Terhubung',
+      DASHSCOPE_API_KEY: 'Terhubung',
+      OPENAI_API_KEY: 'Terhubung',
+      ANTHROPIC_API_KEY: 'Terhubung',
+      GOOGLE_API_KEY: 'Terhubung',
+      HUGGINGFACE_TOKEN: 'Terhubung',
+      REPLICATE_API_TOKEN: 'Terhubung',
+    };
+    document.querySelectorAll('.cloud-service-status').forEach(el => {
+      const key = el.getAttribute('data-status');
+      const label = statusMap[key] ? 'Terhubung ✓' : 'Tidak terhubung';
+      el.textContent = key && (data[key] || data[key] === true) ? label : 'Tidak terhubung';
+    });
+  } catch (e) {
+    console.warn('refreshCloudStatus failed', e);
+  }
+}
+
+function toggleCloud(el) {
+  const input = el.querySelector('.cloud-key-input');
+  const btn = el.querySelector('.cloud-save-btn');
+  const status = el.querySelector('.cloud-service-status');
+  const visible = input.style.display !== 'none';
+  if (visible) {
+    input.style.display = 'none';
+    btn.style.display = 'none';
+    status.style.display = '';
+    return;
+  }
+  document.querySelectorAll('.cloud-key-input').forEach(i => i.style.display = 'none');
+  document.querySelectorAll('.cloud-save-btn').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('.cloud-service-status').forEach(s => s.style.display = '');
+  input.style.display = '';
+  btn.style.display = '';
+  status.style.display = 'none';
+  input.value = '';
+  input.focus();
+}
+
+async function saveCloudKey(btn) {
+  const key = btn.getAttribute('data-key');
+  const serviceCard = btn.closest('.cloud-service');
+  const input = serviceCard.querySelector('.cloud-key-input');
+  const value = (input.value || '').trim();
+  if (!value) { showToast('Isi key dulu'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+  try {
+    const res = await fetch('/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [key]: value })
+    });
+    const data = await res.json();
+    if (!data.saved || !data.saved.includes(key)) throw new Error('Gagal simpan');
+    showToast('✅ Key disimpan');
+    input.style.display = 'none';
+    btn.style.display = 'none';
+    const status = serviceCard.querySelector('.cloud-service-status');
+    status.style.display = '';
+    status.textContent = 'Terhubung ✓';
+    input.value = '';
+  } catch (e) {
+    showToast('❌ Gagal simpan key');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Simpan';
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.cloud-save-btn');
+  if (btn) saveCloudKey(btn);
+  const card = e.target.closest('.cloud-service');
+  if (card && !e.target.closest('.cloud-save-btn') && !e.target.closest('.cloud-key-input')) {
+    toggleCloud(card);
+  }
+});
+
+// ============ SETTINGS SAVE/LOAD ============
+async function loadSettings() {
+  try {
+    const res = await fetch('/settings');
+    const data = await res.json();
+    if (!data || typeof data !== 'object') return;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    set('cpuThreads', data.cpuThreads ?? 4);
+    set('ramAlloc', data.ramAlloc ?? 3);
+    set('batchSize', data.batchSize ?? 4);
+    set('ctxSize', data.ctxSize ?? 2048);
+    const map = {cpuThreads:'threadsVal',ramAlloc:'ramVal',batchSize:'batchVal',ctxSize:'ctxVal'};
+    Object.entries(map).forEach(([inputId,spanId]) => {
+      const el = document.getElementById(spanId);
+      if (el) el.textContent = document.getElementById(inputId)?.value || el.textContent;
+    });
+  } catch (e) {
+    console.warn('loadSettings failed', e);
+  }
+}
+
+async function saveSettings() {
+  const payload = {
+    cpuThreads: parseInt(document.getElementById('cpuThreads')?.value || '4', 10),
+    ramAlloc: parseInt(document.getElementById('ramAlloc')?.value || '3', 10),
+    batchSize: parseInt(document.getElementById('batchSize')?.value || '4', 10),
+    ctxSize: parseInt(document.getElementById('ctxSize')?.value || '2048', 10),
+  };
+  try {
+    const res = await fetch('/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.saved || !data.saved.length) throw new Error('Gagal simpan');
+    showToast('✅ Pengaturan disimpan');
+  } catch (e) {
+    showToast('❌ Gagal simpan pengaturan');
+  }
+}
+
+function resetSettings() {
+  const defaults = { cpuThreads: 4, ramAlloc: 3, batchSize: 4, ctxSize: 2048 };
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  Object.entries(defaults).forEach(([k,v]) => set(k, v));
+  const map = {cpuThreads:'threadsVal',ramAlloc:'ramVal',batchSize:'batchVal',ctxSize:'ctxVal'};
+  Object.entries(map).forEach(([inputId,spanId]) => {
+    const el = document.getElementById(spanId);
+    if (el) el.textContent = document.getElementById(inputId)?.value || el.textContent;
+  });
+  showToast('↺ Di-reset ke default');
+}
+
+switchPanel('settings');
+loadSettings();
+// ============ FILE UPLOAD ============
+let pendingFiles = [];
+
+async function handleFileSelect(input) {
+    const files = input.files;
+    if (!files.length) return;
+    
+    for (let file of files) {
+        showToast(`📎 Upload ${file.name}...`);
+        
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const dataUrl = e.target.result;
+            
+            try {
+                const res = await fetch('/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: dataUrl,
+                        name: file.name,
+                        type: file.type
+                    })
+                });
+                
+                const result = await res.json();
+                if (result.ok) {
+                    pendingFiles.push(result);
+                    addFileToInput(result);
+                    showToast(`✅ ${file.name} siap dikirim`);
+                } else {
+                    showToast(`❌ Gagal upload: ${result.error}`);
+                }
+            } catch (err) {
+                showToast(`❌ Error: ${err.message}`);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    input.value = '';
+}
+
+function addFileToInput(file) {
+    const wrap = document.querySelector('.chat-input-wrap');
+    const existing = wrap.querySelector('.file-preview');
+    if (existing) existing.remove();
+    
+    const icon = getFileIcon(file.name, false);
+    const sizeStr = formatFileSize(file.size);
+    
+    const div = document.createElement('div');
+    div.className = 'file-preview';
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg-bubble-ai);border:1px solid var(--border);border-radius:8px;margin:4px 0;';
+    div.innerHTML = `
+        <span style="font-size:18px">${icon}</span>
+        <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${file.name}</div>
+            <div style="font-size:10px;color:var(--text2)">${sizeStr}</div>
+        </div>
+        <button onclick="removeFile('${file.name}')" style="background:transparent;border:none;color:var(--text2);cursor:pointer;font-size:16px;">✕</button>
+    `;
+    
+    wrap.insertBefore(div, wrap.querySelector('textarea'));
+}
+
+function removeFile(fileName) {
+    pendingFiles = pendingFiles.filter(f => f.name !== fileName);
+    const wrap = document.querySelector('.chat-input-wrap');
+    const previews = wrap.querySelectorAll('.file-preview');
+    previews.forEach(p => {
+        if (p.textContent.includes(fileName)) p.remove();
+    });
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// Update fungsi sendMessage() biar kirim file juga
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text && pendingFiles.length === 0) return;
+
+    addMessageToDOM(text || '📎 Lampiran file', 'user', getTimeStr());
+    
+    // Tampilin file di chat
+    pendingFiles.forEach(f => {
+        const icon = getFileIcon(f.name, false);
+        const sizeStr = formatFileSize(f.size);
+        const fileHtml = `
+            <div style="margin-top:6px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:20px">${icon}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                            <a href="${f.url}" target="_blank" style="color:var(--accent);text-decoration:none;">${f.name}</a>
+                        </div>
+                        <div style="font-size:10px;color:var(--text2)">${sizeStr}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        const container = document.getElementById('chatMessages');
+        const lastMsg = container.lastElementChild;
+        if (lastMsg && lastMsg.classList.contains('user')) {
+            lastMsg.innerHTML += fileHtml;
+        }
+    });
+    
+    input.value = '';
+    input.style.height = 'auto';
+    
+    // Clear pending files
+    const wrap = document.querySelector('.chat-input-wrap');
+    wrap.querySelectorAll('.file-preview').forEach(p => p.remove());
+    
+    const filesToSend = [...pendingFiles];
+    pendingFiles = [];
+    
+    const container = document.getElementById('chatMessages');
+    const typing = document.createElement('div');
+    typing.className = 'typing-indicator';
+    typing.id = 'typingIndicator';
+    typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    container.appendChild(typing);
+    container.scrollTop = container.scrollHeight;
+
+    try {
+        const res = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                message: text,
+                attachments: filesToSend
+            })
+        });
+        const data = await res.json();
+        
+        document.getElementById('typingIndicator')?.remove();
+        addMessageToDOM(data.answer, 'ai', getTimeStr());
+    } catch (err) {
+        document.getElementById('typingIndicator')?.remove();
+        addMessageToDOM("⚠️ Gagal terhubung ke server: " + err, 'ai', getTimeStr());
+    }
+}
+
+// ============ SETTINGS ============
+function updateSlider(inputId, valId) {
+  document.getElementById(valId).textContent = document.getElementById(inputId).value;
+}
+
+// ============ MENU ============
+function toggleMenu() {
+  document.getElementById('mainMenu').classList.toggle('show');
+}
+
+function closeMenu() {
+  document.getElementById('mainMenu').classList.remove('show');
+}
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('mainMenu');
+  const btn = e.target.closest('.header-btn');
+  if (!btn && menu.classList.contains('show')) closeMenu();
+});
+
+// ============ TOAST ============
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// ============ THEME SWITCHER ============
+let currentTheme = localStorage.getItem('mesin_theme') || 'mesin';
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.documentElement.className = '';
+  if (theme !== 'mesin') {
+    document.documentElement.classList.add('theme-' + theme);
+  }
+  document.querySelectorAll('.theme-option').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.theme === theme);
+  });
+  localStorage.setItem('mesin_theme', theme);
+  showToast('🎨 Tema: ' + theme.charAt(0).toUpperCase() + theme.slice(1));
+}
+
+document.getElementById('themeSelector').addEventListener('click', function(e) {
+  const opt = e.target.closest('.theme-option');
+  if (opt) applyTheme(opt.dataset.theme);
+});
+
+// ============ INIT ============
+function populateGenModelSelects() {
+  const imageSelect = document.getElementById('imageModelSelect');
+  const imgModels = fetchedModels.filter(m => m.category === 'image');
+  if (imgModels.length > 0) {
+    imageSelect.innerHTML = imgModels.map((m, i) => {
+      const label = m.display_name || m.name.replace('.gguf', '');
+      const short = label.replace(/stable[_-]diffusion[_-]?/i,'SD ').replace(/[_-]q[48]_\w+$/i,'').replace(/_/g,' ');
+      return `<div class="gen-option ${i===0?'selected':''}" data-val="${m.display_name || m.name.replace('.gguf','')}">${short}</div>`;
+    }).join('');
+    // Re-attach click listener
+    imageSelect.querySelectorAll('.gen-option').forEach(o => {
+      o.addEventListener('click', () => {
+        imageSelect.querySelectorAll('.gen-option').forEach(x => x.classList.remove('selected'));
+        o.classList.add('selected');
+      });
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await fetchModels();
+  applyTheme(currentTheme);
+  populateGenModelSelects();
+  renderModels();
+  updateActiveModelBadge();
+  updateChatCounter();
+});
+</script>
+</body>
+</html>

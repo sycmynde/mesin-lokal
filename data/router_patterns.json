@@ -1,0 +1,19 @@
+{
+  "rag_triggers": [
+    {
+      "pattern": "harga"
+    },
+    {
+      "pattern": "brapa"
+    },
+    {
+      "pattern": "jam berapa"
+    },
+    {
+      "pattern": "kurs rupiah"
+    },
+    {
+      "pattern": "jadwal"
+    }
+  ]
+}
